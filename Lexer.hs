@@ -2,7 +2,6 @@ module Lexer where
 
 import Token
 import Text.Regex.Posix
-import Data.List
 
 lex :: String -> [Token]
 lex input =
@@ -11,8 +10,8 @@ lex input =
 
 processLine :: String -> [Token]
 processLine line = 
-  foldr (\ word next -> processWord word : next) [] line
-  where line = words line
+  let brokenLine = words line
+  in foldr (\ word next -> processWord word : next) [] brokenLine
 
 processWord :: String -> Token
 processWord input 

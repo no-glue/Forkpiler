@@ -2,35 +2,44 @@ module Lexer where
 
 import Token
 import Text.Regex.Posix
+import Data.List
 
 lex :: String -> [Token]
 lex input =
-  foldr (\ line next -> processLine line ++ next) [] breakLines   
-  where breakLines = lines input
+  let breakLines = lines input
+  in foldr (\ line next -> processLine line ++ next) [] breakLines   
 
 processLine :: String -> [Token]
 processLine line = 
   let brokenLine = words line
-  in foldr (\ word next -> processWord word : next) [] brokenLine
+  in foldr (\ word next -> processWord word ++ next) [] brokenLine
 
-processWord :: String -> Token
+processWord :: String -> [Token]
 processWord input 
   |input =~ quotation :: Bool =
-    Token (input =~ quotation :: String) (0,0) "quotation" 
+    let token = Token (input =~ quotation :: String) (0,0) "quotation" 
+    in (processWord (input \\ (contents token))) 
   |input =~ parenOpen :: Bool = 
-    Token (input =~ parenOpen :: String) (0,0) "parenOpen" 
+    let token = Token (input =~ parenOpen :: String) (0,0) "parenOpen" 
+    in token : (processWord (input \\ (contents token))) 
   |input =~ parenClose :: Bool = 
-    Token (input =~ parenClose :: String) (0,0) "parenClose" 
+    let token = Token (input =~ parenClose :: String) (0,0) "parenClose" 
+    in (processWord (input \\ (contents token)))
   |input =~ equalsOp :: Bool = 
-    Token (input =~ equalsOp :: String) (0,0) "equalsOp" 
+    let token = Token (input =~ equalsOp :: String) (0,0) "equalsOp" 
+    in (processWord (input \\ (contents token)))
   |input =~ plusOp :: Bool = 
-    Token (input =~ plusOp :: String) (0,0) "plusOp" 
+    let token = Token (input =~ plusOp :: String) (0,0) "plusOp" 
+    in (processWord (input \\ (contents token)))
   |input =~ minusOp :: Bool =
-    Token (input =~ minusOp :: String) (0,0) "minusOp" 
+    let token = Token (input =~ minusOp :: String) (0,0) "minusOp" 
+    in (processWord (input \\ (contents token)))
   |input =~ openBrace :: Bool =
-    Token (input =~ openBrace :: String) (0,0) "openBrace" 
+    let token = Token (input =~ openBrace :: String) (0,0) "openBrace" 
+    in (processWord (input \\ (contents token)))
   |input =~ closeBrace :: Bool =
-    Token (input =~ closeBrace :: String) (0,0) "closeBrace" 
+    let token = Token (input =~ closeBrace :: String) (0,0) "closeBrace" 
+    in (processWord (input \\ (contents token)))
   where 
     quotation = "^[\"]"
     parenOpen = "^[(]"

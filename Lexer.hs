@@ -6,34 +6,34 @@ lexer :: String -> [Token]
 lexer input lineNumber 
   | input =~ endline :: Bool =
     let token = input =~ endline :: String
-      in recurse lineNumber + 1 
+      in lexer (delete (contents token) input) lineNumber + 1 
   |input =~ whitespace :: Bool = 
     let token = input =~ whitespace :: String
-      in recurse lineNumber 
+      in lexer (delete (contents token) input) lineNumber 
   |input =~ quotation :: Bool =
     let token = input =~ quotation :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ parenOpen :: Bool = 
     let token = input =~ parenOpen :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ parenClose :: Bool = 
     let token = input =~ parenClose :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ equalsOp :: Bool = 
     let token = input =~ equalsOp :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ plusOp :: Bool = 
     let token = input =~ plusOp :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ minusOp :: Bool =
     let token = input =~ minusOp :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ openBrace :: Bool =
     let token = input =~ openBrace :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   |input =~ closeBrace :: Bool =
     let token = input =~ closeBrace :: String
-      in makeToken : recurse lineNumber
+      in makeToken : lexer (delete (contents token) input) lineNumber
   where 
     whitespace = "^[ \t\n]"
     endline = "^[\n]"
@@ -45,5 +45,3 @@ lexer input lineNumber
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    recurse = lexer (delete (contents token) input)
-

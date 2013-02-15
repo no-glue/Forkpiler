@@ -9,7 +9,7 @@ lex input =
   foldr (\ line next -> processLine line ++ next) [] breakLines   
   where breakLines = lines input
 
-processLine :: [String] -> [Token]
+processLine :: String -> [Token]
 processLine line = 
   foldr (\ word next -> processWord word : next) [] line
   where line = words line

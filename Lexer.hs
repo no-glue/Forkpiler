@@ -1,4 +1,4 @@
-Module Lexer where
+module Lexer where
 
 import Token
 import Text.Regex.Posix

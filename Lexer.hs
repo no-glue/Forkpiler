@@ -15,6 +15,7 @@ processLine line =
   in foldr (\ word next -> processWord word ++ next) [] brokenLine
 
 processWord :: String -> [Token]
+processWord [] = []
 processWord input 
   |input =~ quotation :: Bool =
     let token = Token (input =~ quotation :: String) (0,0) "quotation" 
@@ -24,22 +25,26 @@ processWord input
     in token : (processWord (input \\ (contents token))) 
   |input =~ parenClose :: Bool = 
     let token = Token (input =~ parenClose :: String) (0,0) "parenClose" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
   |input =~ equalsOp :: Bool = 
     let token = Token (input =~ equalsOp :: String) (0,0) "equalsOp" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
   |input =~ plusOp :: Bool = 
     let token = Token (input =~ plusOp :: String) (0,0) "plusOp" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
   |input =~ minusOp :: Bool =
     let token = Token (input =~ minusOp :: String) (0,0) "minusOp" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
   |input =~ openBrace :: Bool =
     let token = Token (input =~ openBrace :: String) (0,0) "openBrace" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
   |input =~ closeBrace :: Bool =
     let token = Token (input =~ closeBrace :: String) (0,0) "closeBrace" 
-    in (processWord (input \\ (contents token)))
+    in token : (processWord (input \\ (contents token)))
+  |input =~ digit :: Bool =
+    let token = Token (input =~ openBrace :: String) (0,0) "digit"
+    in token : (processWord (input \\ (contents token)))
+  |otherwise = error("you done fucked up!")
   where 
     quotation = "^[\"]"
     parenOpen = "^[(]"
@@ -49,3 +54,4 @@ processWord input
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
+    digit = "^[\\d]*"

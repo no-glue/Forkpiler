@@ -6,12 +6,13 @@ import Data.List
 
 lex :: String -> [Token]
 lex input =
-  foldl (\++ processLine) [] breakLines   
+  foldr (\ line next -> processLine line ++ next) [] breakLines   
   where breakLines = lines input
 
 processLine :: [String] -> [Token]
 processLine line = 
-  foldl (\++ processWord) [] line
+  foldr (\ word next -> processWord word : next) [] line
+  where line = words line
 
 processWord :: String -> Token
 processWord input 

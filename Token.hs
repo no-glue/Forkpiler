@@ -1,4 +1,4 @@
-module Token (Token) where
+module Token (Token(..)) where
 
 data Token = Token {
   contents :: String,

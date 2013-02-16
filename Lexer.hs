@@ -42,7 +42,7 @@ processWord input
     let token = Token (input =~ closeBrace :: String) (0,0) "closeBrace" 
     in token : (processWord (input \\ (contents token)))
   |input =~ digit :: Bool =
-    let token = Token (input =~ openBrace :: String) (0,0) "digit"
+    let token = Token (input =~ digit :: String) (0,0) "digit"
     in token : (processWord (input \\ (contents token)))
   |otherwise = error("you done fucked up!")
   where 
@@ -54,4 +54,4 @@ processWord input
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    digit = "^[\\d]*"
+    digit = "^[1-9]*"

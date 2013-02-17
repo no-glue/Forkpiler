@@ -1,7 +1,7 @@
 module Lexer where
 
 import Token
-import Text.Regex.Posix
+import Text.Regex.PCRE
 import Data.List
 
 lex :: String -> [Token]
@@ -44,6 +44,18 @@ processWord input
   |input =~ digit :: Bool =
     let token = Token (input =~ digit :: String) (0,0) "digit"
     in token : (processWord (input \\ (contents token)))
+  |input =~ printOp :: Bool = 
+    let token = Token (input =~ printOp :: String) (0,0) "print"
+    in token : (processWord (input \\ (contents token)))
+  |input =~ int :: Bool = 
+    let token = Token (input =~ int :: String) (0,0) "int"
+    in token : (processWord (input \\ (contents token)))
+  |input =~ char :: Bool = 
+    let token = Token (input =~ char :: String) (0,0) "char"
+    in token : (processWord (input \\ (contents token)))
+  |input =~ identifier :: Bool = 
+    let token = Token (input =~ identifier :: String (0,0) "id"
+    in token : (processWord (input \\ (contents token)))
   |otherwise = error("you done fucked up!")
   where 
     quotation = "^[\"]"
@@ -54,4 +66,8 @@ processWord input
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    digit = "^[1-9]*"
+    digit = "^[1-9]+(?![A-Za-z])"
+    printOp = "^[P|Print]"
+    int = "^[int]"
+    char = "^[char]"
+    identifier = "^[a-zA-Z]"

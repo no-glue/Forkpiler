@@ -54,7 +54,7 @@ processWord input
     let token = Token (input =~ char :: String) (0,0) "char"
     in token : (processWord (input \\ (contents token)))
   |input =~ identifier :: Bool = 
-    let token = Token (input =~ identifier :: String (0,0) "id"
+    let token = Token (input =~ identifier :: String) (0,0) "id"
     in token : (processWord (input \\ (contents token)))
   |otherwise = error("you done fucked up!")
   where 
@@ -67,7 +67,7 @@ processWord input
     openBrace = "^[{]"
     closeBrace = "^[}]"
     digit = "^[1-9]+(?![A-Za-z])"
-    printOp = "^[P|Print]"
-    int = "^[int]"
-    char = "^[char]"
+    printOp = "^(Print|P)"
+    int = "^int"
+    char = "^char"
     identifier = "^[a-zA-Z]"

@@ -11,10 +11,10 @@ lex =
 checkEnd :: [Token] -> [Token]
 checkEnd [] = []
 checkEnd tokens 
+  |end == Error = tokens
+  |end == Warning = tokens
   |kind end == kind dollarToken = tokens
-  |otherwise = Warning "no dollar sign found. added dolor sign" :
-               (Token "$" (location end) "eof" :
-               tokens)
+  |otherwise = error("No dollar sign at end of program") 
   where 
     end = last tokens
     dollarToken = Token "$" (0,0) "eof"

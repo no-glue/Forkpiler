@@ -4,7 +4,9 @@ data Token = Token {
   contents :: String,
   location :: (Int,Int),
   kind :: String
-} | Warning{
-    kind :: String}
-  | Error{
-    kind :: String}deriving(Show,Eq)
+}
+
+instance Show Token where
+  show token = (kind token) ++ " token at line:" 
+    ++ (show $ location token) 
+    ++ " with contents " ++ (contents token)

@@ -4,78 +4,77 @@ import Token
 import Text.Regex.PCRE
 import Data.List
 
-lex :: String -> [(Token,Token)]
+lex :: String -> [Token] 
 lex =
   checkEnd . processFile
 
-checkEnd :: [(Token,Token)] -> [(Token,Token)]
+checkEnd :: [Token] -> [Token]
 checkEnd [] = []
 checkEnd tokens 
   |kind end == kind dollarToken = tokens
-  |otherwise = (Token "No $ found added $" (0,0) "lex warning", 
-               dollarToken ) : tokens 
+  |otherwise = Token "No $ found added $" 1 "lex warning" : tokens 
   where 
-    end = fst (last tokens)
-    dollarToken = Token "$" (0,0) "eof"
+    end = last tokens
+    dollarToken = Token "$" 1 "eof"
 
-processFile :: String -> [(Token,Token)]
+processFile :: String -> [Token]
 processFile file = 
   let fileLines = lines file
-  in foldr (\ line next -> processLine line ++ next) [] fileLines
+  in foldr (\ line next -> processLine line (length next) ++ next) [] fileLines
 
-processLine :: String -> [(Token,Token)]
-processLine line = 
+processLine :: String -> Int -> [Token]
+processLine line lineNum = 
   let brokenLine = words line
-  in foldr (\ word next -> processWord word ++ next) [] brokenLine
+  in foldr (\ word next -> processWord word lineNum ++ next) [] brokenLine
 
-processWord :: String -> [(Token,Token)]
-processWord [] = []
-processWord input 
+processWord :: String -> Int -> [Token]
+processWord [] x = []
+processWord input lineNum 
   |input =~ characterList :: Bool =
-    let token = Token (input =~ characterList :: String) (0,0) "charList"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ characterList :: String) lineNum "charList"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ parenOpen :: Bool = 
-    let token = Token (input =~ parenOpen :: String) (0,0) "parenOpen"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ parenOpen :: String)  lineNum "parenOpen"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ parenClose :: Bool = 
-    let token = Token (input =~ parenClose :: String) (0,0) "parenClose"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ parenClose :: String)  lineNum "parenClose"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ equalsOp :: Bool = 
-    let token = Token (input =~ equalsOp :: String) (0,0) "equalsOp"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ equalsOp :: String) lineNum "equalsOp"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ plusOp :: Bool = 
-    let token = Token (input =~ plusOp :: String) (0,0) "plusOp"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ plusOp :: String) lineNum "plusOp"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ minusOp :: Bool =
-    let token = Token (input =~ minusOp :: String) (0,0) "minusOp" 
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ minusOp :: String) lineNum "minusOp" 
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ openBrace :: Bool =
-    let token = Token (input =~ openBrace :: String) (0,0) "openBrace" 
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ openBrace :: String) lineNum "openBrace" 
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ closeBrace :: Bool =
-    let token = Token (input =~ closeBrace :: String) (0,0) "closeBrace" 
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ closeBrace :: String) lineNum "closeBrace" 
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ digit :: Bool =
-    let token = Token (input =~ digit :: String) (0,0) "digit"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ digit :: String) lineNum "digit"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ printOp :: Bool = 
-    let token = Token (input =~ printOp :: String) (0,0) "print"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ printOp :: String) lineNum "print"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ int :: Bool = 
-    let token = Token (input =~ int :: String) (0,0) "int"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ int :: String) lineNum "int"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ char :: Bool = 
-    let token = Token (input =~ char :: String) (0,0) "char"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ char :: String) lineNum "char"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ identifier :: Bool = 
-    let token = Token (input =~ identifier :: String) (0,0) "id"
-    in buildTokens token : processWord (input \\ (contents token))
+    let token = Token (input =~ identifier :: String) lineNum "id"
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ eof :: Bool = 
-    let token = Token (input =~ eof :: String) (0,0) "eof"
-    in token : processWord (input \\ (contents token))
+    let token = Token (input =~ eof :: String) lineNum "eof"
+    in token : processWord (input \\ (contents token)) lineNum
   |otherwise = 
-    let token = Token input (0,0) "lex error"
-    in buildTokens token : [] 
+    let token = Token input lineNum "lex error"
+    in token : [] 
   where 
     parenOpen = "^[(]"
     parenClose = "^[)]"

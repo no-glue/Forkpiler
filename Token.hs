@@ -2,7 +2,7 @@ module Token (Token(..)) where
 
 data Token = Token {
   contents :: String,
-  location :: (Int,Int),
+  location :: Int,
   kind :: String
 }
 

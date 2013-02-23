@@ -72,7 +72,7 @@ processWord input
     in buildTokens token : processWord (input \\ (contents token))
   |input =~ eof :: Bool = 
     let token = Token (input =~ eof :: String) (0,0) "eof"
-    in buildTokens token : processWord (input \\ (contents token))
+    in token : processWord (input \\ (contents token))
   |otherwise = 
     let token = Token input (0,0) "lex error"
     in buildTokens token : [] 

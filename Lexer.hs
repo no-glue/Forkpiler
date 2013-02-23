@@ -91,7 +91,8 @@ processWord input lineNum
     identifier = "^[a-zA-Z]$"
     eof = "^\\$$"
 
---debugPrint :: Token -> Token
+debugPrint :: [Token] -> IO ()
+debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
 debugPrint (x:xs) = do
-  putStrLn ("lexing " ++ (contents x) ++ " as " ++ (kind x)) 
+  putStrLn ("lexing " ++ (contents x) ++ " as " ++ (kind x) ++ "(Like a Boss)") 
   debugPrint xs 

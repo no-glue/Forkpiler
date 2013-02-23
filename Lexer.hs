@@ -5,8 +5,7 @@ import Text.Regex.PCRE
 import Data.List
 
 lex :: String -> [Token] 
-lex =
-  checkEnd . processFile
+lex = checkEnd . processFile
 
 checkEnd :: [Token] -> [Token]
 checkEnd [] = []

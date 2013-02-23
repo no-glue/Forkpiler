@@ -20,7 +20,9 @@ checkEnd tokens
 processFile :: String -> [Token]
 processFile file = 
   let fileLines = lines file
-  in foldr (\ line next -> processLine line (length next) ++ next) [] fileLines
+  in foldr (\ line next -> processLine line (numLines - length next) ++ next) [] fileLines
+  where
+    numLines = length file
 
 processLine :: String -> Int -> [Token]
 processLine line lineNum = 

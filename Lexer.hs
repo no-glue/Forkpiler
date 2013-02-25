@@ -97,8 +97,8 @@ processWord input lineNum
 debugPrint :: [Token] -> IO ()
 debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
 debugPrint (x:xs)
-  | kind x == "lex error" = 
-    error((kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
+  | kind x == Error = 
+    error((show $ kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
   |otherwise = do 
-    putStrLn ("lexing " ++ (contents x) ++ " as " ++ (kind x) ++ "(Like a Boss)")
+    putStrLn ("lexing " ++ (contents x) ++ " as " ++ (show $ kind x) ++ "(Like a Boss)")
     debugPrint xs 

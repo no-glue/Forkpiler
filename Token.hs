@@ -26,6 +26,6 @@ data Token = Token {
 }
 
 instance Show Token where
-  show token = (kind token) ++ " token at line:" 
+  show token = (show $ kind token) ++ " token at line:" 
     ++ (show $ location token) 
     ++ " with contents " ++ (contents token)

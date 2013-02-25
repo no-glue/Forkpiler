@@ -1,9 +1,28 @@
-module Token (Token(..)) where
+module Token where
+
+data TokenType = ParenOpen
+  |ParenClose
+  |EqualsOp
+  |PlusOp
+  |MinusOp
+  |OpenBrace
+  |CloseBrace
+  |Digit
+  |CharacterList
+  |IntOp
+  |CharOp
+  |ID
+  |EOF 
+  |PrintOp 
+  |Error
+  |Warning
+  deriving(Eq, Ord, Enum, Show)
+
 
 data Token = Token {
   contents :: String,
   location :: Int,
-  kind :: String
+  kind :: TokenType 
 }
 
 instance Show Token where

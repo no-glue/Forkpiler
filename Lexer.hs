@@ -12,10 +12,10 @@ checkEnd :: [Token] -> [Token]
 checkEnd [] = []
 checkEnd tokens 
   |kind end == kind dollarToken = tokens
-  |otherwise = Token "No $ found added $" 1 "lex warning" : tokens 
+  |otherwise = Token "No $ found added $" 1 Warning : tokens 
   where 
     end = last tokens
-    dollarToken = Token "$" 1 "eof"
+    dollarToken = Token "$" 1 EOF 
 
 processFile :: String -> [Token]
 processFile file = 
@@ -34,49 +34,49 @@ processWord :: String -> Int -> [Token]
 processWord [] x = []
 processWord input lineNum 
   |input =~ characterList :: Bool =
-    let token = Token (input =~ characterList :: String) lineNum "charList"
+    let token = Token (input =~ characterList :: String) lineNum CharacterList 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ parenOpen :: Bool = 
-    let token = Token (input =~ parenOpen :: String)  lineNum "parenOpen"
+    let token = Token (input =~ parenOpen :: String)  lineNum ParenOpen 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ parenClose :: Bool = 
-    let token = Token (input =~ parenClose :: String)  lineNum "parenClose"
+    let token = Token (input =~ parenClose :: String)  lineNum ParenClose 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ equalsOp :: Bool = 
-    let token = Token (input =~ equalsOp :: String) lineNum "equalsOp"
+    let token = Token (input =~ equalsOp :: String) lineNum EqualsOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ plusOp :: Bool = 
-    let token = Token (input =~ plusOp :: String) lineNum "plusOp"
+    let token = Token (input =~ plusOp :: String) lineNum PlusOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ minusOp :: Bool =
-    let token = Token (input =~ minusOp :: String) lineNum "minusOp" 
+    let token = Token (input =~ minusOp :: String) lineNum MinusOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ openBrace :: Bool =
-    let token = Token (input =~ openBrace :: String) lineNum "openBrace" 
+    let token = Token (input =~ openBrace :: String) lineNum OpenBrace 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ closeBrace :: Bool =
-    let token = Token (input =~ closeBrace :: String) lineNum "closeBrace" 
+    let token = Token (input =~ closeBrace :: String) lineNum CloseBrace 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ digit :: Bool =
-    let token = Token (input =~ digit :: String) lineNum "digit"
+    let token = Token (input =~ digit :: String) lineNum Digit 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ printOp :: Bool = 
-    let token = Token (input =~ printOp :: String) lineNum "print"
+    let token = Token (input =~ printOp :: String) lineNum PrintOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ int :: Bool = 
-    let token = Token (input =~ int :: String) lineNum "int"
+    let token = Token (input =~ int :: String) lineNum IntOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ char :: Bool = 
-    let token = Token (input =~ char :: String) lineNum "char"
+    let token = Token (input =~ char :: String) lineNum CharOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ identifier :: Bool = 
-    let token = Token (input =~ identifier :: String) lineNum "id"
+    let token = Token (input =~ identifier :: String) lineNum ID
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ eof :: Bool = 
-    let token = Token (input =~ eof :: String) lineNum "eof"
+    let token = Token (input =~ eof :: String) lineNum EOF 
     in token : processWord (input \\ (contents token)) lineNum
   |otherwise = 
-    let token = Token input lineNum "lex error"
+    let token = Token input lineNum Error 
     in token : [] 
   where 
     parenOpen = "^[(]"

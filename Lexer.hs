@@ -3,6 +3,7 @@ module Lexer where
 import Token
 import Text.Regex.PCRE
 import Data.List
+import Debug.Trace
 
 lex :: String -> [Token] 
 lex = checkEnd . processFile
@@ -18,10 +19,11 @@ checkEnd tokens
 
 processFile :: String -> [Token]
 processFile file = 
-  let fileLines = lines file
-  in foldr (\ line next -> processLine line (numLines - length next) ++ next) [] fileLines
+  foldr (folding)  [] fileLines
   where
-    numLines = length file
+    fileLines = lines file
+    numLines = length fileLines
+    folding =(\ line next -> processLine line (numLines - trace( "next:" ++ show (length next)) length next) ++ next) 
 
 processLine :: String -> Int -> [Token]
 processLine line lineNum = 
@@ -94,6 +96,9 @@ processWord input lineNum
 
 debugPrint :: [Token] -> IO ()
 debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
-debugPrint (x:xs) = do
-  putStrLn ("lexing " ++ (contents x) ++ " as " ++ (kind x) ++ "(Like a Boss)") 
-  debugPrint xs 
+debugPrint (x:xs)
+  | kind x == "lex error" = 
+    error((kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
+  |otherwise = do 
+    putStrLn ("lexing " ++ (contents x) ++ " as " ++ (kind x) ++ "(Like a Boss)")
+    debugPrint xs 

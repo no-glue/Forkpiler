@@ -1,65 +1,51 @@
 module Parser where
 
 import Token
+--Ok so this took way to long to realise how to write properly
+--I blame it on the class being taught imparativly :p
+--Anyways the big break through was that when parsing something like
+--(stuff) in a totally recursive way you have to call the functions
+--in semingly reverse order. I should have realised that at first
+--but for some reason it didn't seem right. 
+--The exit conditiono for almost all of the recursive calls is to 
+--just return rest. 
 
-parse :: [Token] -> Bool
-parse [] = error("parsing program at start. program appears empty") 
 parse tokens = statement tokens
 
-statement :: [Token] -> Bool
-statement (token:next:rest)
-  |checkToken token "print"= 
-    requireToken next "parenOpen" . exper rest location $ token
-  |checkToken token "id"= 
-    requireToken next "equalsOp" . exper rest location $ token
-  |kind token == "openBrace" = statementList next:rest
-  |otherwise = vardecl
+statement (token:rest)
+  |kind token == PrintOp =
+    consumeToken ParenClose (exper . consumeToken ParenOpen $ rest)
+  |kind token == ID = 
+    exper . consumeToken EqualsOp $ rest
+  |kind token == OpenBrace = 
+    consumeToken CloseBrace (statementList  rest)
+  |kind token == IntOp = varDecl rest
+  |kind token == CharOp = varDecl rest
+  --to match epislon of statementList nothing is consumed
+  |otherwise = token:rest
+  
+exper (token:rest)
+  |kind token == Digit = 
+    intExper rest
+  |kind token == CharacterList = rest
+  |kind token == ID = rest
 
---exper :: [Token] -> Int -> [Token]
-exper [] line = error("parsing expression near nothing found at line:" ++ line)
-exper [] _ = error("paring expression and for some reason I can't be more helpful")
-exper (token:next:rest) line
-  |kind token == "digit" = intExper next:rest
-  |kind token == "charList" = requireToken next "parenClose"  
-  |kind token == "id" = True 
-  |otherwise = error("parsing expresion near line" ++ line)
+varDecl (token:rest)
+  |kind token == IntOp = 
+    consumeToken ID rest
+  |kind token == CharOp = 
+    consumeToken ID rest
 
---statementList :: [Token] -> Int -> [Token]
-statementList [] line = error("parsing statementList nothing found at line:" ++ line)
-statementList [] _ = error("parsing statementList and for some reason I can't be more helpful")
-statementList (token:rest) _ 
-  |not checkToken token "closeBrace" = statement token:rest 
-  |otherwise = True 
+statementList tokens = statement tokens
 
-vardecl (token:next:rest)
-  |type' token = requireToken next "id"
-  |otherwise = error("parse error in variable declaration at line:" ++ location token) 
-
-type' (token:rest) 
-  |checkToken token "int" = True
-  |checkToken token "char" = True
-  |otherwise = error("parse error in type decleration. expecting type found " ++ kind token
-    ++ " on line " ++ location token) 
-
-intExper (token:next:rest)
-  |checkToken token "digit" && op next = exper next
-  |checkToken token "digit" = True
-  |otherwise = error("parse error in int expression. expecting digit or op and found " ++
-    kind token ++ " on line " ++ location token)
+intExper (token:rest) = exper (op rest)
 
 op (token:rest)
-  |checkToken token "plusOp" = True
-  |checkToken token "minusOp" = True
-  |otherwise = error("parse error in int expression. expectiong op and found " ++
-    kind token ++ " on line " ++ location token)
+  |kind token == PlusOp = rest
+  |kind token == MinusOp = rest
+  --error condition
 
---checkToken :: Token -> String -> Bool
-checkToken token string 
-  |kind token  == string = True
-  |otherwise = False
-
---requireToken :: Token -> String -> Bool
-requireToken token string
-  |kind token == string = True 
-  |otherwise = error("parse error. expecting " ++ string ++ " got " ++ kind token
-    ++ " on line " ++ location token)
+consumeToken :: TokenType -> [Token] -> [Token]
+consumeToken type' (token:rest)
+  |kind token == type' = rest
+  --error condition 

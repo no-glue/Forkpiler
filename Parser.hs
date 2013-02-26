@@ -2,6 +2,7 @@ module Parser where
 
 import Token
 import Debug.Trace
+import SymbolTable
 --Ok so this took way to long to realise how to write properly
 --I blame it on the class being taught imparativly :p
 --Anyways the big break through was that when parsing something like
@@ -11,10 +12,13 @@ import Debug.Trace
 --The exit conditiono for almost all of the recursive calls is to 
 --just return rest. 
 
-parse :: [Token] -> [Token]
-parse tokens = statement tokens
+parse :: [Token] -> ([Token], SymbolTable) 
+parse tokens = empty $ program tokens
 
-statement :: [Token] -> [Token]
+program :: [Token] ->([Token], SymbolTable)
+program tokens = statement tokens
+
+statement :: [Token] -> ([Token], SymbolTable)
 statement (token:rest)
   |kind token == PrintOp =
     consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
@@ -27,19 +31,20 @@ statement (token:rest)
   |kind token == CharOp = varDecl $ trace("parsing CharOp") rest
   |otherwise = error("Expecting more in statement found " ++ (show token)) 
   
-exper :: [Token] -> [Token]
+exper :: [Token] -> ([Token], SymbolTable)
 exper (token:rest)
   |kind token == Digit = 
     intExper $ trace("parsing Digit " ++ (show token)) rest
   |kind token == CharacterList = trace("parsed character list in exper") rest
   |kind token == ID = trace("parsed ID in exper") rest
+  |otherwise = error("Error in exper found " ++ (show token) ++ " most likely a lone operator")
 
-varDecl :: [Token] -> [Token]
+varDecl :: [Token] -> ([Token], SymbolTable)
 varDecl (token:rest)
   |kind token == ID = trace("parsing variable decleration") rest
   |otherwise = error("varDecl error with token" ++(show token))
 
-statementList :: [Token] -> [Token]
+statementList :: [Token] -> ([Token], SymbolTable)
 statementList [] = []
 statementList (token:rest) 
   |kind token == CloseBrace = trace("parsing end of statement list") $ rest
@@ -47,7 +52,7 @@ statementList (token:rest)
   |otherwise  = statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
 
-intExper :: [Token] -> [Token]
+intExper :: [Token] -> ([Token], SymbolTable)
 intExper (token:rest)
   |kind token == PlusOp = exper $ trace("parsed PlusOp") rest
   |kind token == MinusOp = exper $ trace("parsed MinusOp") rest
@@ -58,3 +63,8 @@ consumeToken type' [] = error("Looking for " ++ (show type') ++ " found nothing"
 consumeToken type' (token:rest)
   |kind token == type' = trace("consuming " ++(show  token)) $  rest
   |otherwise = error("expected: " ++ (show type') ++ " got " ++ (show token))
+
+empty :: [Token] -> ([Token], SymbolTable)
+empty ([],table) = ([],table)
+empty (x,_) = error("Code outside of {}. Maybe missing {}? Tokens look like " ++
+  (show x)) 

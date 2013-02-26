@@ -1,4 +1,4 @@
-## Read Me!
+# Read Me!
 
 ## Installing the Haskell Platform
 You can find it [here](http://www.haskell.org/platform/).
@@ -15,3 +15,6 @@ Navigate to the directory in which all the .hs files are and run ghc --make Main
 
 ## Running the Compiler
 Just ./Main <file to compile> in the directory you ran ghc. Make sure the file is in the same folder.
+
+# Assignment 1
+All of the test files and the test writeup are in the assignment 1 folder. All of the working code is currently on branch master.

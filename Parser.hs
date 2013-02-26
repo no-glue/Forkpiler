@@ -34,7 +34,7 @@ statement ((token:rest),table)
 exper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
 exper ((token:rest),table)
   |kind token == Digit = 
-    intExper $ trace("parsing Digit " ++ (show token)) res(rest,table)t
+    intExper $ trace("parsing Digit " ++ (show token)) (rest,table)
   |kind token == CharacterList = trace("parsed character list in exper") (rest,table)
   |kind token == ID = trace("parsed ID in exper") (rest,table)
   |otherwise = error("Error in exper found " ++ (show token) ++ " most likely a lone operator")
@@ -50,7 +50,7 @@ statementList ((token:rest),table)
   |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table)
   |length rest == 1 = consumeToken CloseBrace (rest,table)
   |otherwise  = statementList $!  
-    statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
+    statement $ trace("parsing statementList at " ++ (show token)) $ ((token:rest),table) 
 
 intExper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
 intExper ((token:rest),table)

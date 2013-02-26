@@ -65,6 +65,7 @@ statementList ((token:rest),table,errors)
   |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table,errors)
   --not certain why it has to be 1 here and not 0 but it works...
   |length rest == 1 = consumeToken CloseBrace (rest,table,errors)
+  |length rest == 0 = consumeToken CloseBrace (rest,table,errors)
   |otherwise  = statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ ((token:rest),table,errors) 
 

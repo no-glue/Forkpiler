@@ -13,69 +13,69 @@ import SymbolTable
 --just return rest. 
 
 --entry point and also catches the error of there being a missing } at the end
-parse :: [Token] -> ([Token], SymbolTable) 
+parse :: [Token] -> ([Token], SymbolTable, [String]) 
 parse tokens = empty $ program tokens
 
 --the first rewrite rule. does nothing but be called by parse
-program :: [Token] -> ([Token], SymbolTable)
-program tokens = statement (tokens, [])
+program :: [Token] -> ([Token], SymbolTable, [String]) 
+program tokens = statement (tokens, [], [])
 
 --The big one. Catches most of the beginnings of complex statements
-statement :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-statement ((token:next:rest),table)
+statement :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+statement ((token:next:rest),table,errors)
   |kind token == PrintOp =
     consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
-    trace("parsing open paren") (next:rest, table))
+    trace("parsing open paren") (next:rest, table, errors))
   |kind token == ID = 
-    exper . consumeToken EqualsOp $ trace("parsing ID statement") (next:rest,table)
+    exper . consumeToken EqualsOp $ trace("parsing ID statement") (next:rest,table, errors)
   |kind token == OpenBrace = 
-    statementList $ trace("parsing open brace") (next:rest,table)
-  |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]))
-  |kind token == CharOp = varDecl $ trace("parsing CharOp") (next:rest,table)
-  |otherwise = error("Expecting more in statement found " ++ (show token)) 
+    statementList $ trace("parsing open brace") (next:rest,table, errors)
+  |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]),errors)
+  |kind token == CharOp = varDecl $ trace("parsing CharOp") (rest,table,errors)
+  |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
   
 --parses the expression rule and inserts symbols into the symbol table
-exper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-exper ((token:rest),table)
+exper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+exper ((token:rest),table,errors)
   |kind token == Digit = 
-    intExper $ trace("parsing Digit " ++ (show token)) (rest,table)
-  |kind token == CharacterList = trace("parsed character list in exper") (rest,table)
-  |kind token == ID = trace("parsed ID in exper") (rest,table)
-  |otherwise = error("Error in exper found " ++ (show token) ++ " most likely a lone operator")
+    intExper $ trace("parsing Digit " ++ (show token)) (rest,table,errors)
+  |kind token == CharacterList = trace("parsed character list in exper") (rest,table,errors)
+  |kind token == ID = trace("parsed ID in exper") (rest,table,errors)
+  |otherwise = (rest, table, ("Error in exper found " ++ (show token) ++ " most likely a lone operator"):errors)
 
 --parses the existance of an ID after a type decleration
-varDecl :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-varDecl ((token:rest),table)
-  |kind token == ID = trace("parsing variable decleration") (rest,table)
-  |otherwise = error("varDecl error with token" ++(show token))
+varDecl :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+varDecl ((token:rest),table,errors)
+  |kind token == ID = trace("parsing variable decleration") (rest,table,errors)
+  |otherwise = (rest,table,("varDecl error with token" ++(show token)):errors)
 
 --the big recursive guy. $! is 100% needed. if missing Haskell will be super lazy
 --and recurse FOREVER by not consuming anything and instead just running in cicrles
-statementList :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-statementList ([],table) = ([],table)
-statementList ((token:rest),table)
-  |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table)
+statementList :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+statementList ([],table,errors) = ([],table,errors)
+statementList ((token:rest),table,errors)
+  |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table,errors)
   --not certain why it has to be 1 here and not 0 but it works...
-  |length rest == 1 = consumeToken CloseBrace (rest,table)
+  |length rest == 1 = consumeToken CloseBrace (rest,table,errors)
   |otherwise  = statementList $!  
-    statement $ trace("parsing statementList at " ++ (show token)) $ ((token:rest),table) 
+    statement $ trace("parsing statementList at " ++ (show token)) $ ((token:rest),table,errors) 
 
 --parses recursive int expressions. does not calculate any values for symbols that's in
 --sementic analysis
-intExper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-intExper ((token:rest),table)
-  |kind token == PlusOp = exper $ trace("parsed PlusOp") (rest,table)
-  |kind token == MinusOp = exper $ trace("parsed MinusOp") (rest,table)
-  |otherwise = trace("Done intExper") ((token:rest),table)
+intExper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+intExper ((token:rest),table,errors)
+  |kind token == PlusOp = exper $ trace("parsed PlusOp") (rest,table,errors)
+  |kind token == MinusOp = exper $ trace("parsed MinusOp") (rest,table,errors)
+  |otherwise = trace("Done intExper") ((token:rest),table,errors)
 
 --nom nom nom
-consumeToken :: TokenType -> ([Token],SymbolTable) -> ([Token],SymbolTable)
-consumeToken type' ([],_) = error("Looking for " ++ (show type') ++ " found nothing")
-consumeToken type' ((token:rest),table)
-  |kind token == type' = trace("consuming " ++(show  token)) $  (rest,table)
-  |otherwise = error("expected: " ++ (show type') ++ " got " ++ (show token))
+consumeToken :: TokenType -> ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+consumeToken type' ([],table,errors) = ([],table,(("Looking for " ++ (show type') ++ " found nothing") : errors))
+consumeToken type' ((token:rest),table, errors)
+  |kind token == type' = trace("consuming " ++(show  token)) $  (rest,table,errors)
+  |otherwise = (rest,table,("expected: " ++ (show type') ++ " got " ++ (show token)):errors)
 
-empty :: ([Token], SymbolTable) -> ([Token], SymbolTable)
-empty ([],table) = ([],table)
-empty (x,_) = error("Code outside of {}. Maybe missing {}? Tokens look like " ++
-  (show x)) 
+empty :: ([Token], SymbolTable, [String]) -> ([Token], SymbolTable, [String])
+empty ([],table,errors) = ([],table,errors)
+empty (x,table,errors) = (x,table,("Code outside of {}. Maybe missing {}? Tokens look like " ++
+  (show x)):errors) 

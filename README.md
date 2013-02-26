@@ -17,4 +17,4 @@ Navigate to the directory in which all the .hs files are and run ghc --make Main
 Just ./Main <file to compile> in the directory you ran ghc. Make sure the file is in the same folder.
 
 # Assignment 1
-All of the test files and the test writeup are in the assignment 1 folder. All of the working code is currently on branch master.
+All of the test files and the test writeup are in the assignment 1 folder. All of the working code is currently on branch master. If I do any work on it over the next few weeks I'll move to another branch.

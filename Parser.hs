@@ -17,7 +17,7 @@ parse tokens = statement tokens
 statement :: [Token] -> [Token]
 statement (token:rest)
   |kind token == PrintOp =
-    consumeToken ParenClose (exper . consumeToken ParenOpen $ 
+    consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
     trace("parsing open paren")rest)
   |kind token == ID = 
     exper . consumeToken EqualsOp $ trace("parsing ID statement") rest
@@ -31,8 +31,8 @@ exper :: [Token] -> [Token]
 exper (token:rest)
   |kind token == Digit = 
     intExper $ trace("parsing Digit " ++ (show token)) rest
-  |kind token == CharacterList = rest
-  |kind token == ID = rest
+  |kind token == CharacterList = trace("parsed character list in exper") rest
+  |kind token == ID = trace("parsed ID in exper") rest
 
 varDecl :: [Token] -> [Token]
 varDecl (token:rest)
@@ -48,9 +48,9 @@ statementList (token:rest)
 
 intExper :: [Token] -> [Token]
 intExper (token:rest)
-  |kind token == PlusOp = exper rest
-  |kind token == MinusOp = exper rest
-  |otherwise = trace("Done intExper") rest
+  |kind token == PlusOp = exper $ trace("parsed PlusOp") rest
+  |kind token == MinusOp = exper $ trace("parsed MinusOp") rest
+  |otherwise = trace("Done intExper") token:rest
 
 op :: [Token] -> [Token]
 op (token:rest)

@@ -20,13 +20,13 @@ statement (token:rest)
     consumeToken ParenClose (exper . consumeToken ParenOpen $ 
     trace("parsing open paren")rest)
   |kind token == ID = 
-    exper . consumeToken EqualsOp $ trace("parsing ID") rest
+    exper . consumeToken EqualsOp $ trace("parsing ID statement") rest
   |kind token == OpenBrace = 
     statementList $ trace("parsing open brace") rest
   |kind token == IntOp = varDecl $ trace("parsing IntOp") rest
   |kind token == CharOp = varDecl $ trace("parsing CharOp") rest
   --to match epislon of statementList nothing is consumed
-  |otherwise = statement $ trace("parsing another statement") token:rest
+  -- |otherwise = statement $ trace("parsing another statement") token:rest
   
 exper :: [Token] -> [Token]
 exper (token:rest)
@@ -43,7 +43,7 @@ varDecl (token:rest)
 statementList :: [Token] -> [Token]
 statementList (token:rest) 
   |kind token == CloseBrace = trace("parsing end of statement list") $ rest
-  |otherwise =statementList `seq` statement $ token:rest 
+  |otherwise = statementList $ trace("parsing second bit of statement list") `seq` statement$ trace("parsing statementList at token" ++ (show token)) $ token:rest 
 
 intExper :: [Token] -> [Token]
 intExper (token:rest) = exper (op rest)

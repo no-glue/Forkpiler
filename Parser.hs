@@ -22,6 +22,8 @@ program tokens = statement (tokens, [], [])
 
 --The big one. Catches most of the beginnings of complex statements
 statement :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+statement ([],table,errors) = ([], table, ("Found error in statement recived empty token stream." ++
+                              " Dangling operator?"):errors)
 statement ((token:next:rest),table,errors)
   |kind token == PrintOp =
     consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
@@ -33,9 +35,14 @@ statement ((token:next:rest),table,errors)
   |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]),errors)
   |kind token == CharOp = varDecl $ trace("parsing CharOp") (rest,table,errors)
   |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
+--matches when there are only two elements left in the token list
+statement ((token:rest),table,errors) = (rest , table, ("Found error in statement recived empty token stream." ++
+                              " Dangling operator?"):errors) 
   
 --parses the expression rule and inserts symbols into the symbol table
 exper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+exper ([],table,errors) = ([], table, ("Found error in exper recived empty token stream." ++
+                          " Dangling operator?"):errors)
 exper ((token:rest),table,errors)
   |kind token == Digit = 
     intExper $ trace("parsing Digit " ++ (show token)) (rest,table,errors)
@@ -45,6 +52,7 @@ exper ((token:rest),table,errors)
 
 --parses the existance of an ID after a type decleration
 varDecl :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+varDecl ([],table,errors) = ([], table, ("found nothing expected something in var decl"):errors) 
 varDecl ((token:rest),table,errors)
   |kind token == ID = trace("parsing variable decleration") (rest,table,errors)
   |otherwise = (rest,table,("varDecl error with token" ++(show token)):errors)
@@ -63,6 +71,7 @@ statementList ((token:rest),table,errors)
 --parses recursive int expressions. does not calculate any values for symbols that's in
 --sementic analysis
 intExper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
+intExper ([],table,errors) = ([], table, ("found nothing expected something in int expression"):errors)
 intExper ((token:rest),table,errors)
   |kind token == PlusOp = exper $ trace("parsed PlusOp") (rest,table,errors)
   |kind token == MinusOp = exper $ trace("parsed MinusOp") (rest,table,errors)

@@ -8,6 +8,8 @@ import Debug.Trace
 lex :: String -> [Token] 
 lex = checkEnd . processFile
 
+--checks the end to see if there is a $ and then tosses it out
+-- if there is one
 checkEnd :: [Token] -> [Token]
 checkEnd [] = []
 checkEnd tokens 
@@ -98,7 +100,7 @@ debugPrint :: [Token] -> IO ()
 debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
 debugPrint (x:xs)
   | kind x == Error = 
-    error((show $ kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
+    error("lex error" ++ (show $ kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
   |otherwise = do 
     putStrLn ("lexing " ++ (contents x) ++ " as " ++ (show $ kind x) ++ "(Like a Boss)")
     debugPrint xs 

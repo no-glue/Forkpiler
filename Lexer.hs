@@ -11,8 +11,8 @@ lex = checkEnd . processFile
 checkEnd :: [Token] -> [Token]
 checkEnd [] = []
 checkEnd tokens 
-  |kind end == kind dollarToken = tokens
-  |otherwise = Token "No $ found added $" 1 Warning : tokens 
+  |kind end == kind dollarToken = init tokens
+  |otherwise = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens 
   where 
     end = last tokens
     dollarToken = Token "$" 1 EOF 
@@ -23,7 +23,7 @@ processFile file =
   where
     fileLines = lines file
     numLines = length fileLines
-    folding =(\ line next -> processLine line (numLines - trace( "next:" ++ show (length next)) length next) ++ next) 
+    folding =(\ line next -> processLine line (numLines - length next) ++ next) 
 
 processLine :: String -> Int -> [Token]
 processLine line lineNum = 
@@ -91,7 +91,7 @@ processWord input lineNum
     printOp = "^(Print|P)"
     int = "^int"
     char = "^char"
-    identifier = "^[a-zA-Z]$"
+    identifier = "^[a-zA-Z](?![1-9])"
     eof = "^\\$$"
 
 debugPrint :: [Token] -> IO ()

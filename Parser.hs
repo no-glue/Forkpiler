@@ -25,28 +25,32 @@ statement (token:rest)
     statementList $ trace("parsing open brace") rest
   |kind token == IntOp = varDecl $ trace("parsing IntOp") rest
   |kind token == CharOp = varDecl $ trace("parsing CharOp") rest
-  --to match epislon of statementList nothing is consumed
-  -- |otherwise = statement $ trace("parsing another statement") token:rest
+  |otherwise = error("Expecting more in statement found " ++ (show token)) 
   
 exper :: [Token] -> [Token]
 exper (token:rest)
   |kind token == Digit = 
-    intExper rest
+    intExper $ trace("parsing Digit " ++ (show token)) rest
   |kind token == CharacterList = rest
   |kind token == ID = rest
 
 varDecl :: [Token] -> [Token]
 varDecl (token:rest)
-  |kind token == ID = trace("parsing ID") rest
+  |kind token == ID = trace("parsing variable decleration") rest
   |otherwise = error("varDecl error with token" ++(show token))
 
 statementList :: [Token] -> [Token]
+statementList [] = []
 statementList (token:rest) 
   |kind token == CloseBrace = trace("parsing end of statement list") $ rest
-  |otherwise = statementList $ trace("parsing second bit of statement list") `seq` statement$ trace("parsing statementList at token" ++ (show token)) $ token:rest 
+  |otherwise = statementList $!  
+    statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
 
 intExper :: [Token] -> [Token]
-intExper (token:rest) = exper (op rest)
+intExper (token:rest)
+  |kind token == PlusOp = exper rest
+  |kind token == MinusOp = exper rest
+  |otherwise = trace("Done intExper") rest
 
 op :: [Token] -> [Token]
 op (token:rest)

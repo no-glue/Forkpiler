@@ -10,5 +10,5 @@ main = do
   let tokens = Lexer.lex rawCode
   debugPrint tokens
   let parseOutput = parse tokens 
-  putStrLn (show parseOutput ++ "shouldn't have anything before me")
+  putStrLn (show parseOutput ++ "shouldn't have anything before me otherwise there was an undetected parse error")
   writeFile "output.txt" (show tokens) 

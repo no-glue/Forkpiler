@@ -52,12 +52,6 @@ intExper (token:rest)
   |kind token == MinusOp = exper $ trace("parsed MinusOp") rest
   |otherwise = trace("Done intExper") token:rest
 
-op :: [Token] -> [Token]
-op (token:rest)
-  |kind token == PlusOp = rest
-  |kind token == MinusOp = rest
-  --error condition
-
 consumeToken :: TokenType -> [Token] -> [Token]
 consumeToken type' [] = error("Looking for " ++ (show type') ++ " found nothing")
 consumeToken type' (token:rest)

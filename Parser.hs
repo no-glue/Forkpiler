@@ -31,7 +31,7 @@ statement ((token:next:rest),table,errors)
   |kind token == ID = 
     exper . consumeToken EqualsOp $ trace("parsing ID statement") (next:rest,table, errors)
   |kind token == OpenBrace = 
-    statementList $ trace("parsing open brace") (next:rest,table, errors)
+    consumeToken CloseBrace $! statementList $ trace("parsing open brace") (next:rest,table, errors)
   |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]),errors)
   |kind token == CharOp = varDecl $ trace("parsing CharOp") (rest,table,errors)
   |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
@@ -62,10 +62,10 @@ varDecl ((token:rest),table,errors)
 statementList :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
 statementList ([],table,errors) = ([],table,errors)
 statementList ((token:rest),table,errors)
-  |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table,errors)
+  |kind token == CloseBrace = trace("parsing end of statement list") $ (token:rest,table,errors)
   --not certain why it has to be 1 here and not 0 but it works...
-  |length rest == 1 = consumeToken CloseBrace (rest,table,errors)
-  |length rest == 0 = consumeToken CloseBrace (rest,table,errors)
+ -- |length rest == 1 = consumeToken CloseBrace (rest,table,errors)
+ -- |length rest == 0 = consumeToken CloseBrace (rest,table,errors)
   |otherwise  = statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ ((token:rest),table,errors) 
 

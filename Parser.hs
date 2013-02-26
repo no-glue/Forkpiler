@@ -42,8 +42,8 @@ varDecl (token:rest)
 statementList :: [Token] -> [Token]
 statementList [] = []
 statementList (token:rest) 
-  |kind token == CloseBrace = trace("parsing end of statement list") $ rest
-  |otherwise = statementList $!  
+--  |kind token == CloseBrace = trace("parsing end of statement list") $ rest
+    = consumeToken CloseBrace $! statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
 
 intExper :: [Token] -> [Token]
@@ -59,6 +59,7 @@ op (token:rest)
   --error condition
 
 consumeToken :: TokenType -> [Token] -> [Token]
+consumeToken type' [] = error("Looking for " ++ (show type') ++ " found nothing")
 consumeToken type' (token:rest)
   |kind token == type' = trace("consuming " ++(show  token)) $  rest
   |otherwise = error("expected: " ++ (show type') ++ " got " ++ (show token))

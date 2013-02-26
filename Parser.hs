@@ -41,8 +41,10 @@ varDecl (token:rest)
 
 statementList :: [Token] -> [Token]
 statementList [] = []
-statementList (token:rest) = 
-    consumeToken CloseBrace $! statementList $!  
+statementList (token:rest) 
+  |kind token == CloseBrace = trace("parsing end of statement list") $ rest
+  |length rest == 1 = consumeToken CloseBrace rest
+  |otherwise  = statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
 
 intExper :: [Token] -> [Token]

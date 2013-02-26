@@ -15,56 +15,56 @@ import SymbolTable
 parse :: [Token] -> ([Token], SymbolTable) 
 parse tokens = empty $ program tokens
 
-program :: [Token] ->([Token], SymbolTable)
-program tokens = statement tokens
+program :: [Token] -> ([Token], SymbolTable)
+program tokens = statement (tokens, [])
 
-statement :: [Token] -> ([Token], SymbolTable)
-statement (token:rest)
+statement :: ([Token], SymbolTable) -> ([Token], SymbolTable)
+statement ((token:rest),table)
   |kind token == PrintOp =
     consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
-    trace("parsing open paren")rest)
+    trace("parsing open paren") (rest, table))
   |kind token == ID = 
-    exper . consumeToken EqualsOp $ trace("parsing ID statement") rest
+    exper . consumeToken EqualsOp $ trace("parsing ID statement") (rest,table)
   |kind token == OpenBrace = 
-    statementList $ trace("parsing open brace") rest
-  |kind token == IntOp = varDecl $ trace("parsing IntOp") rest
-  |kind token == CharOp = varDecl $ trace("parsing CharOp") rest
+    statementList $ trace("parsing open brace") (rest,table)
+  |kind token == IntOp = varDecl $ trace("parsing IntOp") (rest,table)
+  |kind token == CharOp = varDecl $ trace("parsing CharOp") (rest,table)
   |otherwise = error("Expecting more in statement found " ++ (show token)) 
   
-exper :: [Token] -> ([Token], SymbolTable)
-exper (token:rest)
+exper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
+exper ((token:rest),table)
   |kind token == Digit = 
-    intExper $ trace("parsing Digit " ++ (show token)) rest
-  |kind token == CharacterList = trace("parsed character list in exper") rest
-  |kind token == ID = trace("parsed ID in exper") rest
+    intExper $ trace("parsing Digit " ++ (show token)) res(rest,table)t
+  |kind token == CharacterList = trace("parsed character list in exper") (rest,table)
+  |kind token == ID = trace("parsed ID in exper") (rest,table)
   |otherwise = error("Error in exper found " ++ (show token) ++ " most likely a lone operator")
 
-varDecl :: [Token] -> ([Token], SymbolTable)
-varDecl (token:rest)
-  |kind token == ID = trace("parsing variable decleration") rest
+varDecl :: ([Token], SymbolTable) -> ([Token], SymbolTable)
+varDecl ((token:rest),table)
+  |kind token == ID = trace("parsing variable decleration") (rest,table)
   |otherwise = error("varDecl error with token" ++(show token))
 
-statementList :: [Token] -> ([Token], SymbolTable)
-statementList [] = []
-statementList (token:rest) 
-  |kind token == CloseBrace = trace("parsing end of statement list") $ rest
-  |length rest == 1 = consumeToken CloseBrace rest
+statementList :: ([Token], SymbolTable) -> ([Token], SymbolTable)
+statementList ([],table) = ([],table)
+statementList ((token:rest),table)
+  |kind token == CloseBrace = trace("parsing end of statement list") $ (rest,table)
+  |length rest == 1 = consumeToken CloseBrace (rest,table)
   |otherwise  = statementList $!  
     statement $ trace("parsing statementList at " ++ (show token)) $ token:rest 
 
-intExper :: [Token] -> ([Token], SymbolTable)
-intExper (token:rest)
-  |kind token == PlusOp = exper $ trace("parsed PlusOp") rest
-  |kind token == MinusOp = exper $ trace("parsed MinusOp") rest
-  |otherwise = trace("Done intExper") token:rest
+intExper :: ([Token], SymbolTable) -> ([Token], SymbolTable)
+intExper ((token:rest),table)
+  |kind token == PlusOp = exper $ trace("parsed PlusOp") (rest,table)
+  |kind token == MinusOp = exper $ trace("parsed MinusOp") (rest,table)
+  |otherwise = trace("Done intExper") ((token:rest),table)
 
-consumeToken :: TokenType -> [Token] -> [Token]
-consumeToken type' [] = error("Looking for " ++ (show type') ++ " found nothing")
-consumeToken type' (token:rest)
-  |kind token == type' = trace("consuming " ++(show  token)) $  rest
+consumeToken :: TokenType -> ([Token],SymbolTable) -> ([Token],SymbolTable)
+consumeToken type' ([],_) = error("Looking for " ++ (show type') ++ " found nothing")
+consumeToken type' ((token:rest),table)
+  |kind token == type' = trace("consuming " ++(show  token)) $  (rest,table)
   |otherwise = error("expected: " ++ (show type') ++ " got " ++ (show token))
 
-empty :: [Token] -> ([Token], SymbolTable)
+empty :: ([Token], SymbolTable) -> ([Token], SymbolTable)
 empty ([],table) = ([],table)
 empty (x,_) = error("Code outside of {}. Maybe missing {}? Tokens look like " ++
   (show x)) 

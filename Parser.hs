@@ -85,5 +85,5 @@ consumeToken type' ((token:rest),table, errors)
 empty :: (TokenList, SymbolTable, [String]) -> ([Token], SymbolTable, [String])
 empty ([],table,errors) = ([],table,errors)
 empty (x,table,errors) = (x,table,("More than one Statemnet found outside of {} on line." ++ 
-  (show (location (x !! 1))) ++ " Maybe missing {}? Tokens look like " ++
+  (show (location (x !! 0))) ++ " Maybe missing {}? Tokens look like " ++
   (show x)):errors) 

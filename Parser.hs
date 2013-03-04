@@ -36,8 +36,8 @@ statement ((token:next:rest),table,errors)
   |kind token == CharOp = varDecl $ trace("parsing CharOp") (next:rest,table,errors)
   |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
 --matches when there are only two elements left in the token list
-statement ((token:rest),table,errors) = (rest , table, ("Found error in statement recived empty token stream." ++
-                              " Dangling operator?"):errors) 
+statement ((token:rest),table,errors) = 
+  (rest , table, ("Found error in statement on line " ++ (show $ location token) ++ " have " ++ (show token) ++ " expected more"):errors) 
   
 --parses the expression rule and inserts symbols into the symbol table
 exper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
@@ -84,6 +84,13 @@ consumeToken type' ((token:rest),table, errors)
 
 empty :: (TokenList, SymbolTable, [String]) -> ([Token], SymbolTable, [String])
 empty ([],table,errors) = ([],table,errors)
-empty (x,table,errors) = (x,table,("More than one Statemnet found outside of {} on line." ++ 
+empty (x,table,errors) 
+  |kind first == CloseBrace = (x,table,("Found closeBrace without matching openBrace on line " ++ line):errors) 
+  |kind first == ParenClose = (x,table,("Found close paren without matching open paren on line " ++ line) :errors) 
+  |kind first == Digit = (x,table,("Found unexpected digit on line " ++ line ++ " most likely began math with an ID"):errors)
+  |otherwise = (x,table,("More than one Statemnet found outside of {} on line." ++ 
   (show (location (x !! 0))) ++ " Maybe missing {}? Tokens look like " ++
   (show x)):errors) 
+  where 
+    first = head x
+    line = show (location first)

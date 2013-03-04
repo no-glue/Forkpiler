@@ -33,7 +33,7 @@ statement ((token:next:rest),table,errors)
   |kind token == OpenBrace = 
     consumeToken CloseBrace $! statementList $ trace("parsing open brace") (next:rest,table, errors)
   |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]),errors)
-  |kind token == CharOp = varDecl $ trace("parsing CharOp") (rest,table,errors)
+  |kind token == CharOp = varDecl $ trace("parsing CharOp") (next:rest,table,errors)
   |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
 --matches when there are only two elements left in the token list
 statement ((token:rest),table,errors) = (rest , table, ("Found error in statement recived empty token stream." ++
@@ -82,7 +82,8 @@ consumeToken type' ((token:rest),table, errors)
   |kind token == type' = trace("consuming " ++(show  token)) $  (rest,table,errors)
   |otherwise = (rest,table,("expected: " ++ (show type') ++ " got " ++ (show token)):errors)
 
-empty :: ([Token], SymbolTable, [String]) -> ([Token], SymbolTable, [String])
+empty :: (TokenList, SymbolTable, [String]) -> ([Token], SymbolTable, [String])
 empty ([],table,errors) = ([],table,errors)
-empty (x,table,errors) = (x,table,("Code outside of {}. Maybe missing {}? Tokens look like " ++
+empty (x,table,errors) = (x,table,("More than one Statemnet found outside of {} on line." ++ 
+  (show (location (x !! 1))) ++ " Maybe missing {}? Tokens look like " ++
   (show x)):errors) 

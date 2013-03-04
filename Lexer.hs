@@ -41,6 +41,8 @@ processWord input lineNum
   |input =~ characterList :: Bool =
     let token = Token (input =~ characterList :: String) lineNum CharacterList 
     in token : processWord (input \\ (contents token)) lineNum
+  |input =~ brokenChList :: Bool =
+    error("Found  missing \" at end of characterList:" ++ input)
   |input =~ parenOpen :: Bool = 
     let token = Token (input =~ parenOpen :: String)  lineNum ParenOpen 
     in token : processWord (input \\ (contents token)) lineNum
@@ -91,9 +93,10 @@ processWord input lineNum
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    digit = "^[0-9]+(?![A-Za-z])"
-    characterList = "^[\"][a-zA-Z]*\""
-    printOp = "^(Print|P)"
+    digit = "^[0-9]+(?![a-z])"
+    characterList = "^[\"][a-z]*\""
+    brokenChList = "^[\"][a-z]*(?!\")"
+    printOp = "^(print|P)"
     int = "^int"
     char = "^char"
     identifier = "^[a-z](?![1-9])"

@@ -5,35 +5,38 @@ import Text.Regex.PCRE
 import Data.List
 import Debug.Trace
 
-lex :: String -> [Token] 
+lex :: String -> TokenList
 lex = checkEnd . processFile
 
 --checks the end to see if there is a $ and then tosses it out
 -- if there is one
-checkEnd :: [Token] -> [Token]
+checkEnd :: TokenList -> TokenList 
 checkEnd [] = []
 checkEnd tokens 
-  |kind end == kind dollarToken = init tokens
-  |otherwise = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens 
+  |eof == -1 = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens
+  |eof < size = trace("Warning code beyond $ found. It is being ignored")
+                         take eof tokens
+  |eof == size = take (eof - 1) tokens
+  |otherwise = error("unidentified lex error. most likely an error in the compiler")
   where 
-    end = last tokens
-    dollarToken = Token "$" 1 EOF 
+    eof = findEOF tokens
+    size = length tokens
 
-processFile :: String -> [Token]
-processFile file = 
+processFile :: String -> TokenList 
+processFile file =
   foldr (folding)  [] fileLines
   where
     fileLines = lines file
     numLines = length fileLines
-    folding =(\ line next -> processLine line (numLines - length next) ++ next) 
+    folding = (\ line next -> processLine line (numLines - length next) ++ next) 
 
-processLine :: String -> Int -> [Token]
+processLine :: String -> Int -> TokenList 
 processLine line lineNum = 
   let brokenLine = words line
   in foldr (\ word next -> processWord word lineNum ++ next) [] brokenLine
 
-processWord :: String -> Int -> [Token]
-processWord [] x = []
+processWord :: String -> Int -> TokenList 
+processWord [] _ = []
 processWord input lineNum 
   |input =~ characterList :: Bool =
     let token = Token (input =~ characterList :: String) lineNum CharacterList 
@@ -88,13 +91,13 @@ processWord input lineNum
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    digit = "^[1-9]+(?![A-Za-z])"
+    digit = "^[0-9]+(?![A-Za-z])"
     characterList = "^[\"][a-zA-Z]*\""
     printOp = "^(Print|P)"
     int = "^int"
     char = "^char"
-    identifier = "^[a-zA-Z](?![1-9])"
-    eof = "^\\$$"
+    identifier = "^[a-z](?![1-9])"
+    eof = "^\\$"
 
 debugPrint :: [Token] -> IO ()
 debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
@@ -104,3 +107,14 @@ debugPrint (x:xs)
   |otherwise = do 
     putStrLn ("lexing " ++ (contents x) ++ " as " ++ (show $ kind x) ++ "(Like a Boss)")
     debugPrint xs 
+
+findEOF :: TokenList -> Int
+findEOF x = findToken x EOF
+
+fixLineNumbers :: TokenList -> TokenList
+fixLineNumbers [] = []
+fixLineNumbers (x:xs)
+  |location x < 0 =
+    let token = Token (contents x) 0 (kind x)
+    in token : fixLineNumbers xs
+  |otherwise = x:xs

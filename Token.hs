@@ -12,8 +12,8 @@ data TokenType = ParenOpen
   |IntOp
   |CharOp
   |ID
-  |EOF 
-  |PrintOp 
+  |EOF
+  |PrintOp
   |Error
   |Warning
   deriving(Eq, Ord, Enum, Show)
@@ -25,7 +25,25 @@ data Token = Token {
   kind :: TokenType 
 }
 
+type TokenList = [Token]
+
 instance Show Token where
   show token = (show $ kind token) ++ " token at line:" 
     ++ (show $ location token) 
     ++ " with contents " ++ (contents token)
+
+instance Eq Token where 
+  x == y = kind x == kind y
+  x /= y = kind x /= kind y
+
+findToken :: TokenList -> TokenType -> Int
+findToken [] _ = -1
+findToken xs goal = loop 0 xs
+  where 
+    loop _ [] = -1 
+    loop n (y:ys) 
+      |kind y == goal = n
+      |otherwise = loop (n+1) ys
+
+testList :: TokenList
+testList = [(Token "1" (-1) EqualsOp), (Token "2" 2 EOF)]

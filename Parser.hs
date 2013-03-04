@@ -33,7 +33,7 @@ statement ((token:next:rest),table,errors)
   |kind token == OpenBrace = 
     consumeToken CloseBrace $! statementList $ trace("parsing open brace") (next:rest,table, errors)
   |kind token == IntOp = varDecl $ trace("parsing IntOp") (next:rest, insertSymbol table ([token,next]),errors)
-  |kind token == CharOp = varDecl $ trace("parsing CharOp") (next:rest,table,errors)
+  |kind token == CharOp = varDecl $ trace("parsing CharOp") (next:rest,insertSymbol table ([token,next]),errors)
   |otherwise = (rest, table,("Expecting more in statement found " ++ (show token)):errors)
 --matches when there are only two elements left in the token list
 statement ((token:rest),table,errors) = 

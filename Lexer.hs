@@ -76,14 +76,14 @@ processWord input lineNum
   |input =~ char :: Bool = 
     let token = Token (input =~ char :: String) lineNum CharOp 
     in token : processWord (input \\ (contents token)) lineNum
+  |input =~ longId :: Bool = 
+    error("Found character string outside of \"\":" ++ (show lineNum))
   |input =~ identifier :: Bool = 
     let token = Token (input =~ identifier :: String) lineNum ID
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ eof :: Bool = 
     let token = Token (input =~ eof :: String) lineNum EOF 
     in token : processWord (input \\ (contents token)) lineNum
-  |input =~ longId :: Bool = 
-    error("Found character string outside of \"\":" ++ (show lineNum))
   |otherwise = 
     error("Unexpected character in lex:"++input)
   where 
@@ -101,7 +101,7 @@ processWord input lineNum
     int = "^int"
     char = "^char"
     identifier = "^[a-z](?![1-9])"
-    longId ="^[a-z]*(?![1-9])"
+    longId ="^[a-z]{2,}(?![1-9])"
     eof = "^\\$"
 
 debugPrint :: [Token] -> IO ()

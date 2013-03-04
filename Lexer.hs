@@ -14,10 +14,10 @@ checkEnd :: TokenList -> TokenList
 checkEnd [] = []
 checkEnd tokens 
   |eof == -1 = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens
-  |eof < size = trace("Warning code beyond $ found. It is being ignored")
+  |(eof + 1)< size = trace("Warning code beyond $ found. It is being ignored" ++ show eof ++ show size)
                          take eof tokens
-  |eof == size = take (eof - 1) tokens
-  |otherwise = error("unidentified lex error. most likely an error in the compiler")
+  |(eof+1) == size = take (eof) tokens
+  |otherwise = error("unidentified lex error. most likely an error in the compiler uh oh!")
   where 
     eof = findEOF tokens
     size = length tokens
@@ -82,9 +82,10 @@ processWord input lineNum
   |input =~ eof :: Bool = 
     let token = Token (input =~ eof :: String) lineNum EOF 
     in token : processWord (input \\ (contents token)) lineNum
+  |input =~ longId :: Bool = 
+    error("Found character string outside of \"\":" ++ (show lineNum))
   |otherwise = 
-    let token = Token input lineNum Error 
-    in token : [] 
+    error("Unexpected character in lex:"++input)
   where 
     parenOpen = "^[(]"
     parenClose = "^[)]"
@@ -100,6 +101,7 @@ processWord input lineNum
     int = "^int"
     char = "^char"
     identifier = "^[a-z](?![1-9])"
+    longId ="^[a-z]*(?![1-9])"
     eof = "^\\$"
 
 debugPrint :: [Token] -> IO ()

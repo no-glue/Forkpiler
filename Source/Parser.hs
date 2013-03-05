@@ -23,7 +23,7 @@ program tokens = statement (tokens, [], [])
 --The big one. Catches most of the beginnings of complex statements
 statement :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
 statement ([],table,errors) = ([], table, ("Found error in statement recived empty token stream." ++
-                              " Dangling operator?"):errors)
+                              " Dangling operator? Expected Print, ID, Open Brace or int/char"):errors)
 statement ((token:next:rest),table,errors)
   |kind token == PrintOp =
     consumeToken ParenClose (exper $ consumeToken ParenOpen $ 
@@ -42,13 +42,13 @@ statement ((token:rest),table,errors) =
 --parses the expression rule and inserts symbols into the symbol table
 exper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
 exper ([],table,errors) = ([], table, ("Found error in exper recived empty token stream." ++
-                          " Dangling operator?"):errors)
+                          " Dangling operator? Expected Digit ID or CharacterList"):errors)
 exper ((token:next:rest),table,errors)
   |kind token == Digit = 
     intExper $ trace("parsing Digit " ++ (show token)) (next:rest,table,errors)
   |kind token == CharacterList = trace("parsed character list in exper") (next:rest,table,errors)
   |kind token == ID = trace("parsed ID in exper") (next:rest,table,errors)
-  |otherwise = (rest, table, ("Error in exper found " ++ (show token) ++ " most likely a lone operator"):errors)
+  |otherwise = (rest, table, ("Error in exper found " ++ (show token) ++ " most likely a lone operator. Expected Digit, ID or Character list"):errors)
 exper ((token:rest),table,errors)
   |kind token == Digit =  trace ("parsing last digit " ++ (show token)) (rest,table,errors)
   |kind token == CharacterList = trace("parsed last character list") (rest,table,errors) 
@@ -57,7 +57,7 @@ exper ((token:rest),table,errors)
 
 --parses the existance of an ID after a type decleration
 varDecl :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
-varDecl ([],table,errors) = ([], table, ("found nothing expected something in var decl"):errors) 
+varDecl ([],table,errors) = ([], table, ("found nothing expected ID in var decl"):errors) 
 varDecl ((token:rest),table,errors)
   |kind token == ID = trace("parsing variable decleration") (rest,table,errors)
   |otherwise = (rest,table,("varDecl error with token" ++(show token)):errors)
@@ -74,7 +74,7 @@ statementList ((token:rest),table,errors)
 --parses recursive int expressions. does not calculate any values for symbols that's in
 --sementic analysis
 intExper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
-intExper ([],table,errors) = ([], table, ("found nothing expected something in int expression"):errors)
+intExper ([],table,errors) = ([], table, ("found nothing expected + or - in int expression"):errors)
 intExper ((token:rest),table,errors)
   |kind token == PlusOp = exper $ trace("parsed PlusOp") (rest,table,errors)
   |kind token == MinusOp = exper $ trace("parsed MinusOp") (rest,table,errors)
@@ -91,11 +91,10 @@ empty :: (TokenList, SymbolTable, [String]) -> ([Token], SymbolTable, [String])
 empty ([],table,errors) = ([],table,errors)
 empty (x,table,errors) 
   |kind first == CloseBrace = (x,table,("Found closeBrace without matching openBrace on line " ++ line):errors) 
-  |kind first == ParenClose = (x,table,("Found close paren without matching open paren on line " ++ line) :errors) 
+  |kind first == ParenClose = (x,table,("Found closeParen without matching open paren on line " ++ line) :errors) 
   |kind first == Digit = (x,table,("Found unexpected digit on line " ++ line ++ " most likely began math with an ID"):errors)
   |otherwise = (x,table,("More than one Statemnet found outside of {} on line." ++ 
-  (show (location (x !! 0))) ++ " Maybe missing {}? Tokens look like " ++
-  (show x)):errors) 
+  (show (location (x !! 0))) ++ " Maybe missing {}?":errors)
   where 
     first = head x
     line = show (location first)

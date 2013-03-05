@@ -14,13 +14,13 @@ You might get a bunch of warnings but it should install
 Navigate to the directory in which all the .hs files are and run ghc --make Main.hs. Shouldn't take more than a couple seconds.
 
 Or! To be super cool just run cabal install in the root directory. This
-will build everything cleanly and make it so you can run Forkpiler <filename>
+will build everything cleanly and make it so you can run forkpiler <filename>
 instead of having to use ./Main in the right folder and all that stuff.
 
 ## Running the Compiler
 If you used ghc --make ./Main <file to compile> in the directory you ran ghc. Make sure the file is in the same folder.
 
-If you used cabal install run it as Forkpiler <file to compiler> instead. This
+If you used cabal install run it as forkpiler <file to compiler> instead. This
 can be done in any folder on your computer. 
 
 # Assignment 1

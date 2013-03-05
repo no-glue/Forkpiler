@@ -64,6 +64,9 @@ processWord input lineNum
   |input =~ closeBrace :: Bool =
     let token = Token (input =~ closeBrace :: String) lineNum CloseBrace 
     in token : processWord (input \\ (contents token)) lineNum
+  |input =~ longDigit :: Bool = 
+    error("Found a digit longer than one on line " ++ (show lineNum) ++ 
+      " with contents " ++ input)
   |input =~ digit :: Bool =
     let token = Token (input =~ digit :: String) lineNum Digit 
     in token : processWord (input \\ (contents token)) lineNum
@@ -94,7 +97,8 @@ processWord input lineNum
     minusOp = "^[-]"
     openBrace = "^[{]"
     closeBrace = "^[}]"
-    digit = "^[0-9]+(?![a-z])"
+    digit = "^[0-9](?![a-z])"
+    longDigit = "^[0-9](?![a-z])"
     characterList = "^[\"][a-z]*\""
     brokenChList = "^[\"][a-z]*(?!\")"
     printOp = "^(print|P)"

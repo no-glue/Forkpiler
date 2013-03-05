@@ -98,7 +98,7 @@ processWord input lineNum
     openBrace = "^[{]"
     closeBrace = "^[}]"
     digit = "^[0-9](?![a-z])"
-    longDigit = "^[0-9](?![a-z])"
+    longDigit = "^[0-9]{2,}(?![a-z])"
     characterList = "^[\"][a-z]*\""
     brokenChList = "^[\"][a-z]*(?!\")"
     printOp = "^(print|P)"

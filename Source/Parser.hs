@@ -94,7 +94,7 @@ empty (x,table,errors)
   |kind first == ParenClose = (x,table,("Found closeParen without matching open paren on line " ++ line) :errors) 
   |kind first == Digit = (x,table,("Found unexpected digit on line " ++ line ++ " most likely began math with an ID"):errors)
   |otherwise = (x,table,("More than one Statemnet found outside of {} on line." ++ 
-  (show (location (x !! 0))) ++ " Maybe missing {}?":errors)
+    (show (location (x !! 0))) ++ " Maybe missing {}?"):errors)
   where 
     first = head x
     line = show (location first)

@@ -6,7 +6,9 @@ import Data.List
 import Debug.Trace
 
 lex :: String -> TokenList
-lex = checkEnd . processFile
+lex file = checkEnd $ (processFile fileLines 1)
+  where
+    fileLines = lines file
 
 --checks the end to see if there is a $ and then tosses it out
 -- if there is one
@@ -22,13 +24,11 @@ checkEnd tokens
     eof = findEOF tokens
     size = length tokens
 
-processFile :: String -> TokenList 
-processFile file =
-  foldr (folding)  [] fileLines
-  where
-    fileLines = lines file
-    numLines = length fileLines
-    folding = (\ line next -> processLine line (numLines - length next) ++ next) 
+processFile :: [String] -> Int -> TokenList 
+processFile [] _ = []
+processFile (line:moreLines) x =
+  processLine line x ++ processFile moreLines (x+1) 
+
 
 processLine :: String -> Int -> TokenList 
 processLine line lineNum = 
@@ -115,11 +115,3 @@ debugPrint (x:xs)
 
 findEOF :: TokenList -> Int
 findEOF x = findToken x EOF
-
-fixLineNumbers :: TokenList -> TokenList
-fixLineNumbers [] = []
-fixLineNumbers (x:xs)
-  |location x < 0 =
-    let token = Token (contents x) 0 (kind x)
-    in token : fixLineNumbers xs
-  |otherwise = x:xs

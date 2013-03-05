@@ -13,8 +13,15 @@ You might get a bunch of warnings but it should install
 ## Compiling the Compiler :)
 Navigate to the directory in which all the .hs files are and run ghc --make Main.hs. Shouldn't take more than a couple seconds.
 
+Or! To be super cool just run cabal install in the root directory. This
+will build everything cleanly and make it so you can run Forkpiler <filename>
+instead of having to use ./Main in the right folder and all that stuff.
+
 ## Running the Compiler
-Just ./Main <file to compile> in the directory you ran ghc. Make sure the file is in the same folder.
+If you used ghc --make ./Main <file to compile> in the directory you ran ghc. Make sure the file is in the same folder.
+
+If you used cabal install run it as Forkpiler <file to compiler> instead. This
+can be done in any folder on your computer. 
 
 # Assignment 1
 All of the test files and the test writeup are in the assignment 1 folder. All of the working code is currently on branch assignment1. Just pull the repo and checkout assignment1 and everything will show up.

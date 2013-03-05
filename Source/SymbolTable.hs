@@ -1,7 +1,6 @@
 module SymbolTable where
 import Data.Char
 import Token
-import Data.List
 
 data SymbolType = SInt | SChar
   deriving(Eq, Ord, Bounded, Enum, Show)
@@ -28,6 +27,6 @@ insertSymbol table (token:tokens)
   |kind token == CharOp = charSymbol {name = (contents $ head tokens), address = (location token)} : table
   |otherwise = error("Error inserting " ++ (show token) ++ " into symbol table")
 
-updateValue :: SymbolTable -> [Token] -> SymbolTable
-updateValue table (token:tokens)
-  |otherwise = error("not written yet don't use me yo")
+-- updateValue :: SymbolTable -> [Token] -> SymbolTable
+-- updateValue table (token:tokens)
+  -- |otherwise = error("not written yet don't use me yo")

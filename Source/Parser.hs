@@ -43,12 +43,17 @@ statement ((token:rest),table,errors) =
 exper :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 
 exper ([],table,errors) = ([], table, ("Found error in exper recived empty token stream." ++
                           " Dangling operator?"):errors)
-exper ((token:rest),table,errors)
+exper ((token:next:rest),table,errors)
   |kind token == Digit = 
-    intExper $ trace("parsing Digit " ++ (show token)) (rest,table,errors)
-  |kind token == CharacterList = trace("parsed character list in exper") (rest,table,errors)
-  |kind token == ID = trace("parsed ID in exper") (rest,table,errors)
+    intExper $ trace("parsing Digit " ++ (show token)) (next:rest,table,errors)
+  |kind token == CharacterList = trace("parsed character list in exper") (next:rest,table,errors)
+  |kind token == ID = trace("parsed ID in exper") (next:rest,table,errors)
   |otherwise = (rest, table, ("Error in exper found " ++ (show token) ++ " most likely a lone operator"):errors)
+exper ((token:rest),table,errors)
+  |kind token == Digit =  trace ("parsing last digit " ++ (show token)) (rest,table,errors)
+  |kind token == CharacterList = trace("parsed last character list") (rest,table,errors) 
+  |kind token == ID = trace("parsed last id") (rest,table,errors)
+  |otherwise = (rest, table, ("Error in Exper found " ++ (show token) ++ " expected digit, character list or id"):errors)
 
 --parses the existance of an ID after a type decleration
 varDecl :: ([Token], SymbolTable, [String])  -> ([Token], SymbolTable, [String]) 

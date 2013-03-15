@@ -1,7 +1,7 @@
 module Main where
 
 import Lexer
-import Parser
+import MParser
 import System.Environment
 
 main = do
@@ -9,9 +9,9 @@ main = do
   rawCode <- readFile inFile
   let tokens = Lexer.lex rawCode
   debugPrint tokens
-  let parseOutput = parse tokens 
-  putStrLn ("Errors? " ++ (show (third parseOutput)))
-  putStrLn ("symbol table " ++ (show (second parseOutput)))
+  statement tokens 
+  --putStrLn ("Errors? " ++ (show (third parseOutput)))
+  --putStrLn ("symbol table " ++ (show (second parseOutput)))
   writeFile "output.txt" (show tokens) 
 
 third (_,_,x) = x

@@ -15,6 +15,8 @@ statement (token:rest) =
       let remaining = trace("Parsing print op") consumeToken ParenOpen rest
       let follow = exper remaining
       consumeToken ParenClose follow
+    ID -> do
+      let remaining = trace("Parsing id") consumeToken EqualsOP rest
     _ -> error("Error found nothing")
 
 exper :: TokenList -> TokenList

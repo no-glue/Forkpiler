@@ -9,10 +9,9 @@ main = do
   rawCode <- readFile inFile
   let tokens = Lexer.lex rawCode
   debugPrint tokens
-  statement tokens 
-  --putStrLn ("Errors? " ++ (show (third parseOutput)))
-  --putStrLn ("symbol table " ++ (show (second parseOutput)))
-  writeFile "output.txt" (show tokens) 
+  let result = parse tokens
+  putStrLn(show result)
+  putStrLn "done"
 
 third (_,_,x) = x
 second (_,x,_) = x

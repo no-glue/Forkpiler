@@ -1,36 +1,38 @@
 module MParser where
 
 import Token
-import SymbolTable
+import Debug.Trace
 
 --An attempt to rewrite my parser using monads
 
-parse tokens = return (program tokens)
-
-program tokens = do
- return (statement tokens)
+parse :: TokenList -> TokenList
+parse tokens = statement tokens
   
-statement :: Monad m => TokenList -> m TokenList
-statement (token:next:rest) = do
+statement :: TokenList -> TokenList
+statement (token:rest) =
   case (kind token) of
     PrintOp -> do
-      consumeToken ParenOpen next
-      remaining <- exper rest
-      consumeToken ParenClose (head' remaining)
-      return (tail remaining)
-    _ -> error("what you trying to pull")
+      let remaining = trace("Parsing print op") consumeToken ParenOpen rest
+      let follow = exper remaining
+      consumeToken ParenClose follow
+    _ -> error("Error found nothing")
 
-exper :: Monad m => TokenList -> m TokenList
-exper (token:next:rest) = do
+exper :: TokenList -> TokenList
+exper (token:rest) =
   case (kind token) of
     CharacterList ->
-      return (next:rest)
+      trace("Parsed character list") rest
     _ ->
       error("not implemented")
 
-consumeToken typi x
-  |kind x /= typi = error("didn't find it")
+consumeToken :: TokenType -> TokenList -> TokenList
+consumeToken typi [] = error("Error: Found nothing -- Expected " 
+              ++ show typi) 
+consumeToken typi (x:xs) = if kind x == typi
+  then trace("consuming " ++ show typi ) xs
+  else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
+              ++ show typi ++ " On line " ++ (show $ location x))
 
 head' :: TokenList -> Token
-head' (x:xs) = x
+head' (x:_) = x
 head' [] = Token "empty" (-1) EOF 

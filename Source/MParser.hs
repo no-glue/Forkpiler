@@ -1,5 +1,7 @@
 module MParser where
 
+import Token
+import Debug.Trace
 import ParserHelpers
 
 --An attempt to rewrite my parser using monads
@@ -8,8 +10,8 @@ parse :: TokenList -> TokenList
 parse tokens = empty $ statement tokens
   
 statement :: TokenList -> TokenList
-statement [] = error("Error: Found nothing -- Expected " ++
-                     "print, ID, type, or { in statement")
+statement [] = error("Error: Found nothing -- Expected print, ID, type, or { " ++
+  "in Statement. Possiable dangling {")
 statement (token:rest) =
   case (kind token) of
     PrintOp -> do

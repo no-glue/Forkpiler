@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                forkpiler
-version:             0.2.0.0
+version:             0.1.0.0
 synopsis:            A simple compiler for a class
 -- description:         
 license:             PublicDomain

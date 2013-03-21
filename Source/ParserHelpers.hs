@@ -17,6 +17,10 @@ unexpected token =
   error("Error: Unexpected " ++ printKind token ++ " in int expression " ++
         "on line " ++ printLocation token) 
 
+statementError = error("Error: Found nothing -- Expected print, ID, type, or { " ++
+  "in Statement. Possiable dangling {")
+
+
 empty :: TokenList -> TokenList
 empty [] = []
 empty (token:rest) 

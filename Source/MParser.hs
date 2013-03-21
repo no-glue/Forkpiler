@@ -10,8 +10,7 @@ parse :: TokenList -> TokenList
 parse tokens = empty $ statement tokens
   
 statement :: TokenList -> TokenList
-statement [] = error("Error: Found nothing -- Expected print, ID, type, or { " ++
-  "in Statement. Possiable dangling {")
+statement [] = statementError 
 statement (token:rest) =
   case (kind token) of
     PrintOp -> do
@@ -45,8 +44,7 @@ varDecl list =
   trace("Parsing id in variable decleration") consumeToken ID list
 
 statementList :: TokenList -> TokenList
-statementList [] = error("Error: Found nothing -- Expected print, " ++
-                         "ID, type, or { at start of statementList")
+statementList [] = statementError 
 statementList (token:rest)
   --on finding follow of statementList epislon
   |tt == CloseBrace = token:rest 

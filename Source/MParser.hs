@@ -64,7 +64,7 @@ intExper (token:rest) =
     PlusOp -> exper rest
     MinusOp -> exper rest
     --epislon in intExper because it is entered upon detection of a digit
-    _ -> unexpected token 
+    _ -> token:rest 
 
 consumeToken :: TokenType -> TokenList -> TokenList
 consumeToken typi [] = error("Error: Found nothing -- Expected " 

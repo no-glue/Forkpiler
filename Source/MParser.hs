@@ -4,7 +4,9 @@ import Token
 import Debug.Trace
 import ParserHelpers
 
---An attempt to rewrite my parser using monads
+--A succesful attempt to rewrite my parser using monads
+--All previous functionality exists except the symbol table
+--that's for later
 
 parse :: TokenList -> TokenList
 parse tokens = empty $ statement tokens

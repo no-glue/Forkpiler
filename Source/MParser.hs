@@ -33,9 +33,7 @@ exper [] = error("Error: Found nothing -- Expected digit, " ++
                  "string expression or ID in expr")
 exper (token:rest) =
   case (kind token) of
-    Digit -> do
-      let remaining = intExper rest
-      trace("parsing exper") exper remaining
+    Digit -> intExper rest 
     CharacterList ->
       trace("Parsed character list") rest
     ID -> trace("Parsed ID") rest
@@ -64,13 +62,13 @@ statementList (token:rest)
   where tt = kind token 
 
 intExper :: TokenList -> TokenList
-intExper [] = error("Error: Found nothing -- Expected opperator in intExpr")
+intExper [] = []
 intExper (token:rest) =
   case (kind token) of
     PlusOp -> exper $! rest
     MinusOp -> exper rest
     --epislon in intExper because it is entered upon detection of a digit
-    _ -> token:rest 
+    _ -> rest 
 
 consumeToken :: TokenType -> TokenList -> TokenList
 consumeToken typi [] = error("Error: Found nothing -- Expected " 

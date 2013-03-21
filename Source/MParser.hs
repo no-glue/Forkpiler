@@ -61,7 +61,7 @@ intExper :: TokenList -> TokenList
 intExper [] = []
 intExper (token:rest) =
   case (kind token) of
-    PlusOp -> exper $! rest
+    PlusOp -> exper rest
     MinusOp -> exper rest
     --epislon in intExper because it is entered upon detection of a digit
     _ -> unexpected token 
@@ -75,11 +75,20 @@ consumeToken typi (x:xs) =
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 
-head' :: TokenList -> Token
-head' (x:_) = x
-head' [] = Token "empty" (-1) EOF 
-
 --throws an error. I have no idea what type this would be
 unexpected token = 
   error("Error: Unexpected " ++ printKind token ++ " in int expression " ++
         "on line " ++ printLocation token) 
+
+empty :: TokenList -> TokenList
+empty [] = []
+empty (token:rest) 
+  |tt == CloseBrace = error("Found closeBrace without " ++
+    "matching openBrace on line " ++ printLocation token)
+  |tt == ParenClose = error("Found closeParen without " ++
+    "matching open paren on line " ++ printLocation token) 
+  |tt == Digit = error("Found unexpected digit on line " ++ 
+    printLocation token ++ " most likely began math with an ID")
+  |otherwise = error("More than one statement found outside of {} on line." ++ 
+    printLocation token ++ " Maybe missing {}?")
+  where tt = kind token

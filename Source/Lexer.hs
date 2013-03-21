@@ -11,13 +11,12 @@ lex file = checkEnd $ (processFile fileLines 1)
     fileLines = lines file
 
 --checks the end to see if there is a $ and then tosses it out
--- if there is one
+--if there is one
 checkEnd :: TokenList -> TokenList 
 checkEnd [] = []
 checkEnd tokens 
   |eof == -1 = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens
-  |(eof + 1)< size = trace("Warning code beyond $ found. It is being ignored" ++ show eof ++ show size)
-                         take eof tokens
+  |(eof + 1)< size = trace("Warning code beyond $ found. It is being ignored" ++ show eof ++     show size) take eof tokens
   |(eof+1) == size = take (eof) tokens
   |otherwise = error("unidentified lex error. most likely an error in the compiler uh oh!")
   where 
@@ -42,7 +41,7 @@ processWord input lineNum
     let token = Token (input =~ characterList :: String) lineNum CharacterList 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ brokenChList :: Bool =
-    error("Found  missing \" at end of characterList:" ++ input)
+    error("Error: Found missing \" at end of characterList:" ++ input)
   |input =~ parenOpen :: Bool = 
     let token = Token (input =~ parenOpen :: String)  lineNum ParenOpen 
     in token : processWord (input \\ (contents token)) lineNum
@@ -65,7 +64,7 @@ processWord input lineNum
     let token = Token (input =~ closeBrace :: String) lineNum CloseBrace 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ longDigit :: Bool = 
-    error("Found a digit longer than one on line " ++ (show lineNum) ++ 
+    error("Error: Found a digit longer than one on integer" ++ (show lineNum) ++ 
       " with contents " ++ input)
   |input =~ digit :: Bool =
     let token = Token (input =~ digit :: String) lineNum Digit 
@@ -80,7 +79,7 @@ processWord input lineNum
     let token = Token (input =~ char :: String) lineNum CharOp 
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ longId :: Bool = 
-    error("Found character string outside of \"\":" ++ (show lineNum))
+    error("Error: Found character string outside of \"\":" ++ (show lineNum))
   |input =~ identifier :: Bool = 
     let token = Token (input =~ identifier :: String) lineNum ID
     in token : processWord (input \\ (contents token)) lineNum
@@ -88,7 +87,7 @@ processWord input lineNum
     let token = Token (input =~ eof :: String) lineNum EOF 
     in token : processWord (input \\ (contents token)) lineNum
   |otherwise = 
-    error("Unexpected character in lex:"++input)
+    error("Error: Unexpected character in lex:"++input)
   where 
     parenOpen = "^[(]"
     parenClose = "^[)]"

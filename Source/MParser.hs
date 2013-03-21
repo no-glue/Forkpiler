@@ -25,8 +25,7 @@ statement (token:rest) =
     OpenBrace -> do
       let remaining = trace("Parsing statementList") statementList rest
       consumeToken CloseBrace remaining
-    _ -> error("Error: Unexpected " ++ (show $ kind token) ++ " in statement on line " ++
-               (show $ location token)) 
+    _ -> unexpected token 
 
 exper :: TokenList -> TokenList
 exper [] = error("Error: Found nothing -- Expected digit, " ++
@@ -37,9 +36,7 @@ exper (token:rest) =
     CharacterList ->
       trace("Parsed character list") rest
     ID -> trace("Parsed ID") rest
-    _ ->
-      error("Error: Unexpected " ++ (show $ kind token) ++ " in expr on line " ++
-            (show $ location token))
+    _ -> unexpected token
 
 varDecl :: TokenList -> TokenList
 varDecl [] = error("Error: Found nothing -- Expected ID in variable decleration")
@@ -57,8 +54,7 @@ statementList (token:rest)
     let remaining = statement (token:rest)
     statementList remaining
   --otherwise you done screwed up
-  |otherwise = error("Error: Unexpected " ++ (show $ tt) ++ " in statementList " ++
-                     "on line " ++ (show $ location token))
+  |otherwise = unexpected token
   where tt = kind token 
 
 intExper :: TokenList -> TokenList
@@ -68,7 +64,7 @@ intExper (token:rest) =
     PlusOp -> exper $! rest
     MinusOp -> exper rest
     --epislon in intExper because it is entered upon detection of a digit
-    _ -> rest 
+    _ -> unexpected token 
 
 consumeToken :: TokenType -> TokenList -> TokenList
 consumeToken typi [] = error("Error: Found nothing -- Expected " 
@@ -82,3 +78,8 @@ consumeToken typi (x:xs) =
 head' :: TokenList -> Token
 head' (x:_) = x
 head' [] = Token "empty" (-1) EOF 
+
+--throws an error. I have no idea what type this would be
+unexpected token = 
+  error("Error: Unexpected " ++ printKind token ++ " in int expression " ++
+        "on line " ++ printLocation token) 

@@ -45,5 +45,12 @@ findToken xs goal = loop 0 xs
       |kind y == goal = n
       |otherwise = loop (n+1) ys
 
+
+printLocation :: Token -> String
+printLocation token = show $ location token
+
+printKind :: Token -> String
+printKind token = show $ kind token
+
 testList :: TokenList
 testList = [(Token "1" (-1) EqualsOp), (Token "2" 2 EOF)]

@@ -6,7 +6,7 @@ import Debug.Trace
 --An attempt to rewrite my parser using monads
 
 parse :: TokenList -> TokenList
-parse tokens = statement tokens
+parse tokens = empty $ statement tokens
   
 statement :: TokenList -> TokenList
 statement [] = error("Error: Found nothing -- Expected " ++

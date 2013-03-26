@@ -15,6 +15,6 @@ cabal-version:       >=1.8
 
 executable forkpiler
   main-is: Main.hs
-  hs-source-dirs: Source/
+  hs-source-dirs: src/ 
   -- other-modules:       
   build-depends:       base ==4.5.*, regex-pcre-builtin ==0.94.*

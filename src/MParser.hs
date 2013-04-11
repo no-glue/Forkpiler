@@ -1,6 +1,7 @@
 module MParser where
 
 import Token
+import CST
 import Debug.Trace
 import ParserHelpers
 
@@ -8,8 +9,10 @@ import ParserHelpers
 --All previous functionality exists except the symbol table
 --that's for later
 
-parse :: TokenList -> TokenList
-parse tokens = empty $ statement tokens
+parse :: TokenList -> CST
+parse tokens = do 
+  let (tokenlist, cst) = statement (tokens, CST Statement [])
+  addParentNode cst Program
   
 statement :: TokenList -> TokenList
 statement [] = statementError 

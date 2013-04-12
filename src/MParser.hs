@@ -14,58 +14,58 @@ parse tokens = do
   let (tokenlist, cst) = statement (tokens, CST Statement [])
   addParentNode cst Program
   
-statement :: TokenList -> TokenList
-statement [] = statementError 
-statement (token:rest) =
+statement :: TokenCST -> TokenCST  
+([], _) = statementError 
+statement ((token:rest), cst) =
   case (kind token) of
     PrintOp -> do
-      let remaining = trace("Parsing print op") consumeToken ParenOpen rest
+      let remaining = trace("Parsing print op") consumeToken ParenOpen (rest,cst)
       let follow = exper remaining
       consumeToken ParenClose follow
     ID -> do
-      let remaining = trace("Parsing Id expression") consumeToken EqualsOp rest
+      let remaining = trace("Parsing Id expression") consumeToken EqualsOp (rest,cst)
       exper remaining
-    IntOp -> trace("Parsing int decleration") varDecl rest
-    CharOp -> trace("Parsing char decleration") varDecl rest
+    IntOp -> trace("Parsing int decleration") varDecl (rest,cst)
+    CharOp -> trace("Parsing char decleration") varDecl (rest,cst)
     OpenBrace -> do
-      let remaining = trace("Parsing statementList") statementList rest
+      let remaining = trace("Parsing statementList") statementList (rest,cst)
       consumeToken CloseBrace remaining
     _ -> unexpected token 
 
-exper :: TokenList -> TokenList
-exper [] = error("Error: Found nothing -- Expected digit, " ++
+exper :: TokenCST -> TokenCST 
+exper ([], _) = error("Error: Found nothing -- Expected digit, " ++
                  "string expression or ID in expr")
-exper (token:rest) =
+exper ((token:rest), cst) =
   case (kind token) of
-    Digit -> intExper rest 
+    Digit -> intExper (rest,cst)
     CharacterList ->
-      trace("Parsed character list") rest
-    ID -> trace("Parsed ID") rest
+      trace("Parsed character list") (rest,cst)
+    ID -> trace("Parsed ID") (rest,cst)
     _ -> unexpected token
 
-varDecl :: TokenList -> TokenList
-varDecl [] = error("Error: Found nothing -- Expected ID in variable decleration")
+varDecl :: TokenCST -> TokenCST 
+varDecl ([],_) = error("Error: Found nothing -- Expected ID in variable decleration")
 varDecl list =
   trace("Parsing id in variable decleration") consumeToken ID list
 
-statementList :: TokenList -> TokenList
-statementList [] = statementError 
-statementList (token:rest)
+statementList :: TokenCST -> TokenCST 
+statementList ([],_) = statementError 
+statementList ((token:rest),cst)
   --on finding follow of statementList epislon
-  |tt == CloseBrace = token:rest 
+  |tt == CloseBrace = ((token:rest),cst)
   --on finding first of statement do the statementList thing
   |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace = do
-    let remaining = statement (token:rest)
+    let remaining = statement ((token:rest), cst)
     statementList remaining
   --otherwise you done screwed up
   |otherwise = unexpected token
   where tt = kind token 
 
-intExper :: TokenList -> TokenList
-intExper [] = []
-intExper (token:rest) =
+intExper :: TokenCST -> TokenCST 
+intExper ([],cst) = ([],cst)
+intExper ((token:rest),cst) =
   case (kind token) of
-    PlusOp -> exper rest
-    MinusOp -> exper rest
+    PlusOp -> exper (rest,cst)
+    MinusOp -> exper (rest,cst) 
     --epislon in intExper because it is entered upon detection of a digit
-    _ -> token:rest 
+    _ -> ((token:rest),cst)

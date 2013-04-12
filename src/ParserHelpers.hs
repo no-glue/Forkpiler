@@ -1,14 +1,15 @@
 module ParserHelpers where
 
 import Token
+import CST
 import Debug.Trace
 
-consumeToken :: TokenType -> TokenList -> TokenList
-consumeToken typi [] = error("Error: Found nothing -- Expected " 
+consumeToken :: TokenType -> TokenCST -> TokenCST
+consumeToken typi ([], _) = error("Error: Found nothing -- Expected " 
               ++ show typi) 
-consumeToken typi (x:xs) = 
+consumeToken typi ((x:xs), cst) = 
   if kind x == typi
-  then trace("consuming " ++ show typi ) xs
+  then trace("consuming " ++ show typi ) (xs, addChildNode cst (Terminal x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 
@@ -20,10 +21,9 @@ unexpected token =
 statementError = error("Error: Found nothing -- Expected print, ID, type, or { " ++
   "in Statement. Possiable dangling {")
 
-
 empty :: TokenList -> TokenList
 empty [] = []
-empty (token:rest) 
+empty (token:_)
   |tt == CloseBrace = error("Found closeBrace without " ++
     "matching openBrace on line " ++ printLocation token)
   |tt == ParenClose = error("Found closeParen without " ++

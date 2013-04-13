@@ -1,21 +1,30 @@
 module ParserHelpers where
 
 import Token
-import CST
+import AST
 import Debug.Trace
 
-consumeToken :: TokenType -> TokenCST -> TokenCST
-consumeToken typi ([], _) = error("Error: Found nothing -- Expected " 
+consumeTokenAsChild :: TokenType -> TokenAST -> TokenAST
+consumeTokenAsChild typi ([], _) = error("Error: Found nothing -- Expected " 
               ++ show typi) 
-consumeToken typi ((x:xs), cst) = 
+consumeTokenAsChild typi ((x:xs), cst) = 
   if kind x == typi
   then trace("consuming " ++ show typi ) (xs, addChildNode cst (Terminal x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 
+consumeTokenAsParent :: TokenType -> TokenAST -> TokenAST
+consumeTokenAsParent typi ([], _) = error("Error: Found nothing -- Expected " 
+              ++ show typi) 
+consumeTokenAsParent typi ((x:xs), cst) = 
+  if kind x == typi
+  then trace("consuming " ++ show typi ) (xs, addParentNode cst (Terminal x))
+  else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
+              ++ show typi ++ " On line " ++ (show $ location x))
+
 --throws an error. I have no idea what type this would be
 unexpected token = 
-  error("Error: Unexpected " ++ printKind token ++ " in int expression " ++
+  error("Error: Unexpected " ++ printKind token ++ " in expression " ++
         "on line " ++ printLocation token) 
 
 statementError = error("Error: Found nothing -- Expected print, ID, type, or { " ++

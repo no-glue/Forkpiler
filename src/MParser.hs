@@ -10,9 +10,7 @@ import ParserHelpers
 --that's for later
 
 parse :: TokenList -> CST
-parse tokens = do 
-  let (tokenlist, cst) = statement (tokens, CST Statement [])
-  addParentNode cst Program
+parse tokens = statement (tokens, CST Statement [])
   
 statement :: TokenCST -> TokenCST  
 ([], _) = statementError 

@@ -19,21 +19,25 @@ statement :: TokenCST -> TokenCST
 statement ((token:rest), cst) =
   case (kind token) of
     PrintOp -> do
-      let remaining = trace("Parsing print op") consumeToken ParenOpen (rest,cst2)
-      let follow = exper remaining
-     -- let (done, cst3) = 
-      consumeToken ParenClose follow
-      --(done, addParentNode cst3 Statement)
+      let (remaining, cst3) = trace("Parsing print op") consumeToken ParenOpen (rest,cst2)
+      let (follow, child) = exper (remaining, CST Expr [])
+      consumeToken ParenClose (follow, addChildTree cst3 child)
     ID -> do
-      let remaining = trace("Parsing Id expression") consumeToken EqualsOp (rest,cst2)
-      exper remaining
-    IntOp -> trace("Parsing int decleration") varDecl (rest,cst2)
-    CharOp -> trace("Parsing char decleration") varDecl (rest,cst2)
+      let (remaining, cst3) = trace("Parsing Id expression") consumeToken EqualsOp (rest,cst2)
+      let (expression, child) = exper (remaining, CST Expr []) 
+      trace(show child) (expression, addChildTree cst3 child)
+    IntOp -> do
+      let (decleration, tree) = trace("Parsing int decleration") varDecl (rest, CST terminal [])
+      (decleration, addChildTree cst tree)
+    CharOp -> do     
+      let (decleration, tree) = trace("Parsing char decleration") varDecl (rest, CST terminal [])
+      (decleration, addChildTree cst tree)
     OpenBrace -> do
       let remaining = trace("Parsing statementList") statementList (rest,cst2)
       consumeToken CloseBrace remaining
     _ -> unexpected token 
-    where cst2 = addChildNode cst (Terminal token)
+    where cst2 = addChildNode cst terminal 
+          terminal = Terminal token
 
 exper :: TokenCST -> TokenCST 
 exper ([], _) = error("Error: Found nothing -- Expected digit, " ++

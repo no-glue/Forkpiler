@@ -7,18 +7,18 @@ import Debug.Trace
 consumeTokenAsChild :: TokenType -> TokenAST -> TokenAST
 consumeTokenAsChild typi ([], _) = error("Error: Found nothing -- Expected " 
               ++ show typi) 
-consumeTokenAsChild typi ((x:xs), cst) = 
+consumeTokenAsChild typi ((x:xs), ast) = 
   if kind x == typi
-  then trace("consuming " ++ show typi ) (xs, addChildNode cst (Terminal x))
+  then trace("consuming " ++ show typi ) (xs, addChildNode ast (Terminal x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 
 consumeTokenAsParent :: TokenType -> TokenAST -> TokenAST
 consumeTokenAsParent typi ([], _) = error("Error: Found nothing -- Expected " 
               ++ show typi) 
-consumeTokenAsParent typi ((x:xs), cst) = 
+consumeTokenAsParent typi ((x:xs), ast) = 
   if kind x == typi
-  then trace("consuming " ++ show typi ) (xs, addParentNode cst (Terminal x))
+  then trace("consuming " ++ show typi ) (xs, addParentNode ast (Terminal x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 

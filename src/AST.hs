@@ -5,9 +5,11 @@ data AST = AST ASTNode Children
   deriving(Show)
 
 data ASTNode = 
-  Terminal {original :: Token} 
-  deriving(Show)
-
+  Terminal {
+    original :: Token
+--    typei :: String
+     }deriving(Show)
+  
 type Children = [AST]
 type TokenAST = (TokenList, AST)
 

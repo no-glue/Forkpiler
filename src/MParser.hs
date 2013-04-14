@@ -20,7 +20,7 @@ statement :: TokenList -> TokenAST
 statement (token:rest) =
   case (kind token) of
     PrintOp -> do
-      let (remaining, ast2) = trace("Parsing print op") consumeTokenAsChild ParenOpen (rest,ast)
+      let (remaining, ast2) = trace("Parsing print op")  consumeTokenAsChild ParenOpen (rest,ast)
       let (follow, experTree) = exper remaining
       consumeTokenAsChild ParenClose (follow, addChildTree ast experTree)
     ID -> do
@@ -29,14 +29,14 @@ statement (token:rest) =
       (expression, addChildTree ast2 child)
     IntOp -> do
       let (decleration, child) = trace("Parsing int decleration") varDecl rest
-      (decleration, addChildTree ast child) 
+      (decleration, addChildTree ast child)
     CharOp -> do
       let (decleration, child) = trace("Parsing char decleration") varDecl rest
       (decleration, addChildTree ast child)
     OpenBrace -> do
       let remaining = trace("Parsing statementList") statementList (rest,ast)
       consumeTokenAsChild CloseBrace remaining
-    _ -> unexpected token 
+    _ -> unexpected token
     where ast = AST (Terminal token) []
 
 exper :: TokenList -> TokenAST 
@@ -47,7 +47,7 @@ exper (token:rest)
     |tt == CharacterList = trace("Parsed character list") (rest,ast)
     |tt == ID = trace("Parsed ID") (rest,ast)
     |otherwise = unexpected token
-    where ast = AST (Terminal token) [] 
+    where ast = AST (Terminal token) []
           tt = kind token
 
 varDecl :: TokenList -> TokenAST 
@@ -65,11 +65,11 @@ statementList ((token:rest),ast)
   |tt == CloseBrace = ((token:rest),ast)
   --on finding first of statement do the statementList thing
   |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace = do
-    let remaining = statement (token:rest)
-    statementList remaining
+    let (list, ast2) = statement (token:rest)
+    statementList (list, addChildTree ast ast2)
   --otherwise you done screwed up
   |otherwise = unexpected token
-  where tt = kind token 
+  where tt = kind token
 
 intExper :: TokenAST -> TokenAST 
 intExper ([], ast) = ([], ast)

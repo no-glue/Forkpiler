@@ -62,7 +62,7 @@ statementList :: TokenAST -> TokenAST
 statementList ([],_) = statementError 
 statementList ((token:rest),ast)
   --on finding follow of statementList epislon
-  |tt == CloseBrace = ((token:rest),ast2)
+  |tt == CloseBrace = ((token:rest),ast)
   --on finding first of statement do the statementList thing
   |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace = do
     let remaining = statement (token:rest)
@@ -70,7 +70,6 @@ statementList ((token:rest),ast)
   --otherwise you done screwed up
   |otherwise = unexpected token
   where tt = kind token 
-        ast2 = addChildNode ast (Terminal token)
 
 intExper :: TokenAST -> TokenAST 
 intExper ([], ast) = ([], ast)

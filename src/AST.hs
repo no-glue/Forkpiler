@@ -6,14 +6,6 @@ data AST = AST ASTNode Children
 
 data ASTNode = 
   Terminal {original :: Token} 
-  |Program
-  |Statement
-  |StatementList
-  |Expr
-  |IntExpr
-  |StringExpr
-  |CharList
-  |VarDecl
   deriving(Show)
 
 type Children = [AST]

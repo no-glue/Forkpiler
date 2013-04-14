@@ -75,7 +75,7 @@ statementList ((token:rest),ast)
 intExper :: TokenAST -> TokenAST 
 intExper ([], ast) = ([], ast)
 intExper ((token:rest), ast) = 
-    case (kind token)
+    case (kind token) of
       PlusOp  -> do
          let (expression, child) = exper rest
          (expression, addChildTree parent child)
@@ -85,4 +85,4 @@ intExper ((token:rest), ast) =
     --epislon in intExper because it is entered upon detection of a digit
       _ ->  ((token:rest),ast)
     where tt = kind token 
-          parent = addChildTree (AST (Terminal token)) ast
+          parent = addChildTree (AST (Terminal token) []) ast

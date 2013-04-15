@@ -1,32 +1,22 @@
 module SymbolTable where
-import Data.Char
+import Data.Map
 import Token
+import AST
 
-data SymbolType = SInt | SChar
-  deriving(Eq, Ord, Bounded, Enum, Show)
 
 data Symbol = Symbol {
   name :: String,
   address :: Int,
   sType :: SymbolType,
   value :: Int,
+  scope :: Int,
   used :: Bool
 }deriving(Show)
 
-intSymbol :: Symbol
-intSymbol = Symbol { sType = SInt, value = 0, used = False }
+type SymbolTable = Map String [Symbol]
 
-charSymbol :: Symbol
-charSymbol = Symbol { sType = SChar, value = ord 'a', used = False }
-
-type SymbolTable = [Symbol] 
-
-insertSymbol :: SymbolTable -> [Token] -> SymbolTable
-insertSymbol table (token:tokens)
-  |kind token == IntOp = intSymbol {name = (contents $ head tokens), address = (location token)} : table
-  |kind token == CharOp = charSymbol {name = (contents $ head tokens), address = (location token)} : table
-  |otherwise = error("Error inserting " ++ (show token) ++ " into symbol table")
-
--- updateValue :: SymbolTable -> [Token] -> SymbolTable
--- updateValue table (token:tokens)
-  -- |otherwise = error("not written yet don't use me yo")
+insertSymbol :: SymbolTable -> Symbol -> SymbolTable 
+insertSymbol table symbol 
+  |member key table = insert key (symbol:(table ! key)) table 
+  |otherwise = insert key [symbol] table
+  where key = name symbol

@@ -9,7 +9,7 @@ consumeTokenAsChild typi ([], _) = error("Error: Found nothing -- Expected "
               ++ show typi) 
 consumeTokenAsChild typi ((x:xs), ast) = 
   if kind x == typi
-  then trace("consuming " ++ show typi ) (xs, addChildNode ast (Terminal x))
+  then trace("consuming " ++ show typi ) (xs, addChildNode ast (newNode x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 
@@ -18,7 +18,7 @@ consumeTokenAsParent typi ([], _) = error("Error: Found nothing -- Expected "
               ++ show typi) 
 consumeTokenAsParent typi ((x:xs), ast) = 
   if kind x == typi
-  then trace("consuming " ++ show typi ) (xs, addParentNode ast (Terminal x))
+  then trace("consuming " ++ show typi ) (xs, addParentNode ast (newNode x))
   else error("Error: Found " ++ (show $ kind x) ++ " -- Expected " 
               ++ show typi ++ " On line " ++ (show $ location x))
 

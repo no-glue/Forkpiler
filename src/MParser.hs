@@ -37,7 +37,7 @@ statement (token:rest) =
       let remaining = trace("Parsing statementList") statementList (rest,ast)
       consumeTokenAsChild CloseBrace remaining
     _ -> unexpected token
-    where ast = AST (Terminal token) []
+    where ast = AST (newNode token) []
 
 exper :: TokenList -> TokenAST 
 exper [] = error("Error: Found nothing -- Expected digit, " ++
@@ -47,7 +47,7 @@ exper (token:rest)
     |tt == CharacterList = trace("Parsed character list") (rest,ast)
     |tt == ID = trace("Parsed ID") (rest,ast)
     |otherwise = unexpected token
-    where ast = AST (Terminal token) []
+    where ast = AST (newNode token) []
           tt = kind token
 
 varDecl :: TokenList -> TokenAST 
@@ -55,7 +55,7 @@ varDecl [] = error("Error: Found nothing -- Expected ID in variable decleration"
 varDecl (token:rest)
   |tt == ID = trace("Parsing id in variable decleration") (rest, ast) 
   |otherwise = unexpected token
-  where ast = AST (Terminal token) []
+  where ast = AST (newNode token) []
         tt = kind token
 
 statementList :: TokenAST -> TokenAST 
@@ -84,4 +84,4 @@ intExper ((token:rest), ast) =
     --epislon in intExper because it is entered upon detection of a digit
       _ ->  ((token:rest),ast)
     where tt = kind token 
-          parent = addChildTree (AST (Terminal token) []) ast
+          parent = addChildTree (AST (newNode token) []) ast

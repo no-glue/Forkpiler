@@ -6,12 +6,24 @@ data AST = AST ASTNode Children
 
 data ASTNode = 
   Terminal {
-    original :: Token
---    typei :: String
+    original :: Token,
+    tokentype :: SymbolType 
      }deriving(Show)
-  
+
+data SymbolType = I | S | N
+  deriving(Show)
+
 type Children = [AST]
 type TokenAST = (TokenList, AST)
+
+
+newNode :: Token -> ASTNode
+newNode token 
+  |tt == IntOp || tt == PlusOp || tt == MinusOp = Terminal token I 
+  |tt == CharOp = Terminal token S 
+  |otherwise = Terminal token N 
+  where tt = kind token
+
 
 addParentNode :: AST -> ASTNode -> AST
 addParentNode child parent = addChildTree (AST parent []) child 

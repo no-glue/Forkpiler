@@ -2,6 +2,7 @@ module Main where
 
 import Lexer
 import MParser
+import SemanticAnalysis
 import System.Environment
 
 main = do
@@ -10,6 +11,7 @@ main = do
   let tokens = Lexer.lex rawCode
   debugPrint tokens
   let result = parse tokens
+  let test = analyze result
   putStrLn(show result)
   putStrLn "done"
 

@@ -3,7 +3,6 @@ import Data.Map
 import Token
 import AST
 
-
 data Symbol = Symbol {
   name :: String,
   address :: Int,
@@ -20,3 +19,8 @@ insertSymbol table symbol
   |member key table = insert key (symbol:(table ! key)) table 
   |otherwise = insert key [symbol] table
   where key = name symbol
+
+--findInScope :: SymbolTable -> String -> Int -> Symbol
+--findInScope table key scope 
+  -- |member key table = pluck (table ! key) scope
+  --where pluck = 

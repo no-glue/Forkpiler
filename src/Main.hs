@@ -2,8 +2,9 @@ module Main where
 
 import Lexer
 import MParser
-import SemanticAnalysis
+--import SemanticAnalysis
 import System.Environment
+import AST
 
 main = do
   [inFile] <- getArgs
@@ -11,8 +12,8 @@ main = do
   let tokens = Lexer.lex rawCode
   debugPrint tokens
   let result = parse tokens
-  let test = analyze result
-  putStrLn(show result)
+ -- let test = analyze result
+  putStrLn (drawTree result)
   putStrLn "done"
 
 third (_,_,x) = x

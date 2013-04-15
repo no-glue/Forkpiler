@@ -20,9 +20,10 @@ statement :: TokenList -> TokenAST
 statement (token:rest) =
   case (kind token) of
     PrintOp -> do
-      let (remaining, ast2) = trace("Parsing print op")  consumeTokenAsChild ParenOpen (rest,ast)
+      let remaining = trace("Parsing print op")  consumeToken ParenOpen rest
       let (follow, experTree) = exper remaining
-      consumeTokenAsChild ParenClose (follow, addChildTree ast experTree)
+      let consumed = consumeToken ParenClose follow
+      (consumed ,addChildTree ast experTree)
     ID -> do
       let (remaining, ast2) = trace("Parsing Id expression") consumeTokenAsParent EqualsOp (rest,ast)
       let (expression, child) = exper remaining
@@ -34,8 +35,9 @@ statement (token:rest) =
       let (decleration, child) = trace("Parsing char decleration") varDecl rest
       (decleration, addChildTree ast child)
     OpenBrace -> do
-      let remaining = trace("Parsing statementList") statementList (rest,ast)
-      consumeTokenAsChild CloseBrace remaining
+      let (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
+      let consumed = consumeToken CloseBrace remaining
+      (consumed, ast2) 
     _ -> unexpected token
     where ast = AST (newNode token) []
 

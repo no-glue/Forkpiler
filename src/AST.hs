@@ -10,7 +10,7 @@ data ASTNode =
    }
 
 data SymbolType = I | S | N
-  deriving(Show)
+  deriving(Show, Eq)
 
 instance Show ASTNode where 
   show node = let token = original node

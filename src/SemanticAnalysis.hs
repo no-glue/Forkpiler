@@ -11,3 +11,11 @@ analyze (AST parent (child:children))
 
 block :: [AST] -> AST
 block  (AST parent 
+
+math :: [AST] -> AST
+math [] = []
+math (child1:child2:others) = 
+math ((AST node1 type1) : (AST node2 type2)) 
+  |type1 /= I = error("Type mismatch on line")
+  |type2 /= I = error("Type mismatch on line")
+  |otherwise = []

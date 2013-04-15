@@ -14,7 +14,7 @@ data SymbolType = I | S | N
 
 instance Show ASTNode where 
   show node = let token = original node
-    in (show $ kind token) ++ " " ++ (contents token) 
+    in (show $ kind token) ++ " " ++ (contents token) ++ " " ++ (show $ tokentype node)
 
 instance Show AST where
   show ast = drawTree ast
@@ -26,7 +26,7 @@ type TokenAST = (TokenList, AST)
 newNode :: Token -> ASTNode
 newNode token 
   |tt == Digit || tt == IntOp || tt == PlusOp || tt == MinusOp = Terminal token I 
-  |tt == CharOp = Terminal token S 
+  |tt == CharOp || tt == CharacterList = Terminal token S 
   |otherwise = Terminal token N 
   where tt = kind token
 

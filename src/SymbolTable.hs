@@ -12,7 +12,8 @@ data Symbol = Symbol {
   used :: Bool
 }deriving(Show)
 
-type SymbolTable = Map String [Symbol]
+type SymbolTable = Map String [(Symbol,Int)]
+type ScopeMap = Map Int SymbolTable
 
 insertSymbol :: SymbolTable -> Symbol -> SymbolTable 
 insertSymbol table symbol 
@@ -21,7 +22,8 @@ insertSymbol table symbol
   where key = name symbol
     location = address symbol
 
---findInScope :: SymbolTable -> String -> Int -> Symbol
---findInScope table key scope 
-  -- |member key table = pluck (table ! key) scope
-  --where pluck = 
+findInScope :: ScopeMap -> Symbol -> Int 
+findInScope table symbol scope 
+   |member key table = pluck (table ! key) scope
+   where pluck = 
+    key = name symbol

@@ -13,7 +13,7 @@ main = do
   debugPrint tokens
   let result = parse tokens
  -- let test = analyze result
-  putStrLn (drawTree result)
+  putStrLn (result)
   putStrLn "done"
 
 third (_,_,x) = x

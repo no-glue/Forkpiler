@@ -16,9 +16,10 @@ type SymbolTable = Map String [Symbol]
 
 insertSymbol :: SymbolTable -> Symbol -> SymbolTable 
 insertSymbol table symbol 
-  |member key table = insert key (symbol:(table ! key)) table 
+  |member key table = error("Redecleration of Symbol " ++ key ++ " on line " ++ location) 
   |otherwise = insert key [symbol] table
   where key = name symbol
+    location = address symbol
 
 --findInScope :: SymbolTable -> String -> Int -> Symbol
 --findInScope table key scope 

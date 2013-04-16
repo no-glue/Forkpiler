@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module MParser where
 
 import Token
@@ -10,10 +11,11 @@ import ParserHelpers
 --that's for later
 
 parse :: TokenList -> AST
-parse tokens = do
-  let (tokenlist, ast) = statement tokens
-  let test = empty tokenlist
-  ast
+parse tokens =
+  let 
+    (tokenlist, ast) = statement tokens
+    test = empty tokenlist
+    in ast
   
 statement :: TokenList -> TokenAST  
 [] = statementError 
@@ -23,8 +25,8 @@ statement (token:rest) =
       let
         remaining = trace("Parsing print op")  consumeToken ParenOpen rest
         (follow, experTree) = exper remaining
-        consumed = consumeToken ParenClose follow
-      in ((!consumed) ,addChildTree ast experTree)
+        !consumed = consumeToken ParenClose follow
+      in (consumed ,addChildTree ast experTree)
     ID ->
       let 
         (remaining, ast2) = trace("Parsing Id expression") consumeTokenAsParent EqualsOp (rest,ast)

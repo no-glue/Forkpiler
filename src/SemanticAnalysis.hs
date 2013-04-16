@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module SemanticAnalysis where
 import Token
 import qualified Data.Map as Map
@@ -12,15 +13,23 @@ typeCheck (AST ast children) m scope
   |tt == EqualsOp = assignType children m scope
   |tt == PrintOp = printType children m scope
   |tt == PlusOp || tt == MinusOp = mathType children m scope
-  |tt == OpenBrace = error("found brace") head $ typeCheckChildren children m (scope+1)
+  |tt == OpenBrace = head $! typeCheckChildren children m (scope+1)
   |tt == IntOp = trace("Found decleration") I
   |tt == CharOp = S
-  |otherwise = error("found" ++ show ast)
-  where tt = kind $ original ast
+  |tt == ID = sType (findInScope m key scope)
+  where 
+    tt = kind $ original ast
+    key = contents $ original ast
+    getSymbol
+     |symbol == Errer = error("Undecleraed ID")
 
 typeCheckChildren :: [AST] -> ScopeMap -> Int -> [SymbolType]
+typeCheckChildren [] m scope = [] 
 typeCheckChildren (child: childs) m scope = 
-  typeCheck child m scope : typeCheckChildren childs m scope
+    childScope : kidsScope
+  where
+    !childScope = trace("looking at child") typeCheck child m scope
+    !kidsScope = typeCheckChildren childs m scope
 
 assignType :: [AST] -> ScopeMap -> Int -> SymbolType
 assignType (child1:child2:[]) m scope
@@ -28,8 +37,8 @@ assignType (child1:child2:[]) m scope
     ++"Found something" ++ (show $ right) ++ "something else on line number number") 
   |otherwise = left
   where 
-    left = typeCheck child1 m scope 
-    right = typeCheck child1 m scope
+    !left = typeCheck child1 m scope 
+    !right = typeCheck child2 m scope
 
 mathType :: [AST] -> ScopeMap -> Int -> SymbolType
 mathType (child1:child2:[]) m scope
@@ -37,10 +46,10 @@ mathType (child1:child2:[]) m scope
         ++"Plus is not for String concatenation")
   |right == S = error("Error: Found String on right of plus. Note: "
        ++ "Plus is not for String concatenation")
-  |otherwise = trace("Math typechecks") I
+  |otherwise = trace("Math typechecks" ++ (show child1)) I
   where
-    left = typeCheck child1 m scope
-    right = typeCheck child2 m scope 
+    !left = typeCheck child1 m scope
+    !right = typeCheck child2 m scope 
 
 printType :: [AST] -> ScopeMap -> Int -> SymbolType
 printType (child1:[]) m scope 
@@ -69,7 +78,7 @@ symbolLine (AST parent childs, m, (pscope, scope))
 brace :: Children -> (ScopeMap, Scope) -> ScopeMap
 brace [] (m,_) = m 
 brace (kid:kids) (m, (pscope,scope)) =
-  let nm = symbolLine (kid, m,(pscope,scope)) 
+  let !nm = symbolLine (kid, m,(pscope,scope)) 
   in brace kids (nm, (pscope,scope))
 
 intScope :: (AST, ScopeMap, Scope) -> ScopeMap

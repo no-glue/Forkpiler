@@ -2,7 +2,7 @@ module Main where
 
 import Lexer
 import MParser
---import SemanticAnalysis
+import SemanticAnalysis
 import System.Environment
 import AST
 
@@ -11,9 +11,11 @@ main = do
   rawCode <- readFile inFile
   let tokens = Lexer.lex rawCode
   debugPrint tokens
-  let result = parse tokens
+  let ast = parse tokens
  -- let test = analyze result
-  putStrLn (show result)
+  putStrLn (show ast)
+  let symboltable = buildSymbolTable ast
+  putStrLn (show symboltable)
   putStrLn "done"
 
 third (_,_,x) = x

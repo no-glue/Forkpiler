@@ -13,8 +13,16 @@ data Symbol = Symbol{
 
 type SymbolTable = Map String (Symbol,Int)
 type ScopeMap = Map Int SymbolTable
+type Scope = (Int, Int)
 
-insertInScope :: ScopeMap -> Symbol -> (Int,Int) -> ScopeMap
+tokenAndTypeToSymbol :: Token -> SymbolType -> Symbol
+tokenAndTypeToSymbol token ty = 
+  Symbol { name = c, address = l, sType = ty, value = c, used = False}
+  where 
+    c = contents token
+    l = location token
+
+insertInScope :: ScopeMap -> Symbol -> Scope -> ScopeMap
 insertInScope m symbol (pscope,scope)
   |member scope m = adjust (insertSymbol) scope m
   |otherwise = insert scope (fromList[(key,(symbol,pscope))]) m
@@ -36,7 +44,7 @@ findInScope m key scope
   |otherwise = Errer 
   where parent = snd . head . elems
 
-updateValue :: ScopeMap -> Token -> (Int,Int) -> String -> ScopeMap
+updateValue :: ScopeMap -> Token -> Scope -> String -> ScopeMap
 updateValue m t (pscope,scope) v 
   |symbol == Errer = error(undecleraed)
   |otherwise =

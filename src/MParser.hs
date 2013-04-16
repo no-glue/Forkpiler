@@ -19,25 +19,28 @@ statement :: TokenList -> TokenAST
 [] = statementError 
 statement (token:rest) =
   case (kind token) of
-    PrintOp -> do
-      let remaining = trace("Parsing print op")  consumeToken ParenOpen rest
-      let (follow, experTree) = exper remaining
-      let consumed = consumeToken ParenClose follow
-      (consumed ,addChildTree ast experTree)
-    ID -> do
-      let (remaining, ast2) = trace("Parsing Id expression") consumeTokenAsParent EqualsOp (rest,ast)
-      let (expression, child) = exper remaining
-      (expression, addChildTree ast2 child)
-    IntOp -> do
+    PrintOp ->
+      let
+        remaining = trace("Parsing print op")  consumeToken ParenOpen rest
+        (follow, experTree) = exper remaining
+        consumed = consumeToken ParenClose follow
+      in ((!consumed) ,addChildTree ast experTree)
+    ID ->
+      let 
+        (remaining, ast2) = trace("Parsing Id expression") consumeTokenAsParent EqualsOp (rest,ast)
+        (expression, child) = exper remaining
+      in (expression, addChildTree ast2 child)
+    IntOp ->
       let (decleration, child) = trace("Parsing int decleration") varDecl rest
-      (decleration, addChildTree ast child)
-    CharOp -> do
-      let (decleration, child) = trace("Parsing char decleration") varDecl rest
-      (decleration, addChildTree ast child)
-    OpenBrace -> do
-      let (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
-      let consumed = consumeToken CloseBrace remaining
-      (consumed, ast2) 
+      in  (decleration, addChildTree ast child)
+    CharOp ->
+        let (decleration, child) = trace("Parsing char decleration") varDecl rest
+        in  (decleration, addChildTree ast child)
+    OpenBrace ->
+      let 
+        (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
+        consumed = consumeToken CloseBrace remaining
+      in (consumed, ast2) 
     _ -> unexpected token
     where ast = AST (newNode token) []
 
@@ -66,9 +69,9 @@ statementList ((token:rest),ast)
   --on finding follow of statementList epislon
   |tt == CloseBrace = ((token:rest),ast)
   --on finding first of statement do the statementList thing
-  |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace = do
+  |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace =
     let (list, ast2) = statement (token:rest)
-    statementList (list, addChildTree ast ast2)
+    in statementList (list, addChildTree ast ast2)
   --otherwise you done screwed up
   |otherwise = unexpected token
   where tt = kind token
@@ -77,12 +80,12 @@ intExper :: TokenAST -> TokenAST
 intExper ([], ast) = ([], ast)
 intExper ((token:rest), ast) = 
     case (kind token) of
-      PlusOp  -> do
+      PlusOp  ->
          let (expression, child) = exper rest
-         (expression, addChildTree parent child)
-      MinusOp ->  do
+         in (expression, addChildTree parent child)
+      MinusOp ->
          let (expression, child) = exper rest
-         (expression, addChildTree parent child)
+         in (expression, addChildTree parent child)
     --epislon in intExper because it is entered upon detection of a digit
       _ ->  ((token:rest),ast)
     where tt = kind token 

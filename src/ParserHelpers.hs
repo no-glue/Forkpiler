@@ -27,8 +27,8 @@ consumeToken typi [] = error("Error: Found nothing -- Expected "
               ++ show typi)
 consumeToken typi (x:xs) =
   if kind x == typi
-      then trace("consuming " ++ show typi ) xs
-        else error("Error: Found " ++ (show $ kind x) ++ " -- Expected "
+  then trace("consuming " ++ show typi ) xs
+  else error("Error: Found " ++ (show $ kind x) ++ " -- Expected "
                         ++ show typi ++ " On line " ++ (show $ location x))
 
 --throws an error. I have no idea what type this would be

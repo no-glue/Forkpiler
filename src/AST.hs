@@ -43,6 +43,9 @@ addChildTree (AST root children) child = AST root $ children ++ [child]
 addChildNode :: AST -> ASTNode -> AST
 addChildNode (AST root children) child = AST root $ children ++ [(AST child [])] 
 
+addChildren :: AST -> Children -> AST
+addChildren (AST root children) kids = AST root $ children ++ kids
+
 drawTree = unlines . draw
 
 draw (AST node children) = show node : drawSub children

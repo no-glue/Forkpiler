@@ -3,47 +3,54 @@ import Token
 import qualified Data.Map as Map
 import AST
 import SymbolTable 
+import Debug.Trace 
 
---analyze :: AST -> AST
---analyze (AST parent (child:children))
-  -- |tt == OpenBrace = block child:children 
-  -- |tt == PlusOp || tt == MinusOp = math
- -- where tt = kind $ original parent
+typeCheck :: AST -> ScopeMap -> Int -> SymbolType
+typeCheck (AST ast children) m scope
+  |tt == CharacterList = trace("Found String") S
+  |tt == Digit = I
+  |tt == EqualsOp = assignType children m scope
+  |tt == PrintOp = printType children m scope
+  |tt == PlusOp || tt == MinusOp = mathType children m scope
+  |tt == OpenBrace = error("found brace") head $ typeCheckChildren children m (scope+1)
+  |tt == IntOp = trace("Found decleration") I
+  |tt == CharOp = S
+  |otherwise = error("found" ++ show ast)
+  where tt = kind $ original ast
 
---block :: [AST] -> AST
---block  (AST parent 
+typeCheckChildren :: [AST] -> ScopeMap -> Int -> [SymbolType]
+typeCheckChildren (child: childs) m scope = 
+  typeCheck child m scope : typeCheckChildren childs m scope
 
---math :: [AST] -> AST
---math [] = []
---math (child1:child2) 
+assignType :: [AST] -> ScopeMap -> Int -> SymbolType
+assignType (child1:child2:[]) m scope
+  |left /= right = error("Type mismatch in assignment. "
+    ++"Found something" ++ (show $ right) ++ "something else on line number number") 
+  |otherwise = left
+  where 
+    left = typeCheck child1 m scope 
+    right = typeCheck child1 m scope
 
-  --where
-   -- ast1 = AST 
- 
-fullyTypeTree :: AST -> ScopeMap -> AST
-fullyTypeTree tree = typeingLine (tree, m, (0))
-
-typeingLine :: (AST, ScopeMap, Int) -> AST
-typeingLine (AST parent kids, m, scope)
-  |tt == ID = let fosterParent = typeID (parent, m, scope)
-              in addChildNode fosterParent kids
-  |tt == OpenBrace = let fosterKids = typeingLineBrace kids (m, scope+1)
-                     in addChildTree parent fosterKids  
-  |otherwise = let fosterParent = typeingLine (kids, m, scope)
-               in addChildNode fosterParent kids
+mathType :: [AST] -> ScopeMap -> Int -> SymbolType
+mathType (child1:child2:[]) m scope
+  |left == S = error("Error: Found String on left of plus. Note: " 
+        ++"Plus is not for String concatenation")
+  |right == S = error("Error: Found String on right of plus. Note: "
+       ++ "Plus is not for String concatenation")
+  |otherwise = trace("Math typechecks") I
   where
-    (child:children) = kids
-    tt = kind $ original parent 
+    left = typeCheck child1 m scope
+    right = typeCheck child2 m scope 
 
-typeingLineBrace :: Children -> (ScopeMap, Int) -> Children
-typeingLineBrace [] _ = []
-brace (kid:kids) (m, scope) =
-  let fosterBrother = typeingLine (kid, m, scope)
-  in fosterBrother : brace kids
-
-typeID :: (ASTNode, ScopeMap, Int) -> ASTNode
-typeID (node, m, scope) = ASTNode ori I 
-  where ori = original node
+printType :: [AST] -> ScopeMap -> Int -> SymbolType
+printType (child1:[]) m scope 
+  |tt == PlusOp = mathType children m scope
+  |tt == CharacterList = S
+  |tt == Digit = I
+  |otherwise = typeCheck child1 m scope
+  where 
+    tt = kind $ original parent
+    AST parent children = child1 
 
 buildSymbolTable :: AST -> ScopeMap
 buildSymbolTable tree = symbolLine (tree , Map.empty, (0,0))

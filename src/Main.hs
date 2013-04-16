@@ -16,6 +16,7 @@ main = do
   putStrLn (show ast)
   let symboltable = buildSymbolTable ast
   putStrLn (show symboltable)
+  putStrLn (show $ typeCheck ast symboltable 0)
   putStrLn "done"
 
 third (_,_,x) = x

@@ -16,12 +16,14 @@ typeCheck (AST ast children) m scope
   |tt == OpenBrace = head $! typeCheckChildren children m (scope+1)
   |tt == IntOp = trace("Found decleration") I
   |tt == CharOp = S
-  |tt == ID = sType (findInScope m key scope)
+  |tt == ID = getSymbol 
   where 
     tt = kind $ original ast
     key = contents $ original ast
     getSymbol
      |symbol == Errer = error("Undecleraed ID")
+     |otherwise = sType symbol
+     where symbol = findInScope m key scope
 
 typeCheckChildren :: [AST] -> ScopeMap -> Int -> [SymbolType]
 typeCheckChildren [] m scope = [] 

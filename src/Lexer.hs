@@ -31,7 +31,7 @@ processFile (line:moreLines) x =
 
 processLine :: String -> Int -> TokenList 
 processLine line lineNum = 
-  let brokenLine = words line
+  let brokenLine = words line 
   in foldr (\ word next -> processWord word lineNum ++ next) [] brokenLine
 
 processWord :: String -> Int -> TokenList 
@@ -118,3 +118,13 @@ debugPrint (x:xs)
 
 findEOF :: TokenList -> Int
 findEOF x = findToken x EOF
+
+words' :: String -> [String]
+words' "" = []
+words' s = map stripquotes $ fromparse $ parsewith p s
+  where
+   p = do 
+    ss <- (quotedPattern <|> pattern) `sepBy` many1 spacenonewline
+    return ss
+   pattern = many (noneOf whitespacechars)
+   quotedPattern = between (oneOf "'\"") (oneOf "'\"") $ many $ noneOf "'\""

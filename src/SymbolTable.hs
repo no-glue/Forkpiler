@@ -17,7 +17,7 @@ type Scope = (Int, Int)
 
 tokenAndTypeToSymbol :: Token -> SymbolType -> Symbol
 tokenAndTypeToSymbol token ty = 
-  Symbol { name = c, address = l, sType = ty, value = c, used = False}
+  Symbol{name = c, address = l, sType = ty, value = c, used = False}
   where 
     c = contents token
     l = location token

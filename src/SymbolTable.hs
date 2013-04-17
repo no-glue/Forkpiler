@@ -54,7 +54,7 @@ updateValue :: ScopeMap -> Token -> Scope -> String -> ScopeMap
 updateValue m t (pscope,scope) v 
   |symbol == Errer = error(undecleraed)
   |otherwise =
-    let newSymbol = Symbol (name symbol) (address symbol) (sType symbol) v (used symbol)
+    let newSymbol = Symbol (name symbol) (address symbol) (sType symbol) v True 
     in SymbolTable.update m newSymbol (pscope,scope)
   where 
     symbol = findInScope m key scope 

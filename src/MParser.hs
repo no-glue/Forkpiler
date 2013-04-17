@@ -14,7 +14,7 @@ parse :: TokenList -> AST
 parse tokens =
   let 
     (tokenlist, ast) = statement tokens
-    test = empty tokenlist
+    !test = empty tokenlist
     in ast
   
 statement :: TokenList -> TokenAST  
@@ -41,7 +41,7 @@ statement (token:rest) =
     OpenBrace ->
       let 
         (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
-        consumed = consumeToken CloseBrace remaining
+        !consumed = consumeToken CloseBrace remaining
       in (consumed, ast2) 
     _ -> unexpected token
     where ast = AST (newNode token) []

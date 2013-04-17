@@ -20,9 +20,10 @@ typeCheck (AST ast children) m scope
   where 
     tt = kind $ original ast
     key = contents $ original ast
+    line = location $ original ast
     dummySymbol t = Symbol "dummy" (-1) t "" False
     getSymbol
-     |symbol == Errer = error("Undecleraed ID")
+     |symbol == Errer = error("Undecleraed ID: " ++ key ++ " on Line: " ++ (show line))
      |otherwise = symbol
      where symbol = findInScope m key scope
 

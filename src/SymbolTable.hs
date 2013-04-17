@@ -15,6 +15,12 @@ type SymbolTable = Map String (Symbol,Int)
 type ScopeMap = Map Int SymbolTable
 type Scope = (Int, Int)
 
+expandType :: SymbolType -> String
+expandType t 
+  |t == S = "string"
+  |t == I = "int"
+  |otherwise = "no type"
+
 tokenAndTypeToSymbol :: Token -> SymbolType -> Symbol
 tokenAndTypeToSymbol token ty = 
   Symbol{name = c, address = l, sType = ty, value = c, used = False}

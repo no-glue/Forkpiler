@@ -6,23 +6,24 @@ import AST
 import SymbolTable 
 import Debug.Trace 
 
-typeCheck :: AST -> ScopeMap -> Int -> SymbolType
+typeCheck :: AST -> ScopeMap -> Int -> Symbol
 typeCheck (AST ast children) m scope
-  |tt == CharacterList = trace("Found String") S
-  |tt == Digit = I
-  |tt == EqualsOp = assignType children m scope
-  |tt == PrintOp = printType children m scope
-  |tt == PlusOp || tt == MinusOp = mathType children m scope
-  |tt == OpenBrace = head $! typeCheckChildren children m (scope+1)
-  |tt == IntOp = trace("Found decleration") I
-  |tt == CharOp = S
+  |tt == CharacterList = dummySymbol S 
+  |tt == Digit = dummySymbol I
+  |tt == EqualsOp = dummySymbol $ assignType children m scope
+  |tt == PrintOp = dummySymbol $ printType children m scope
+  |tt == PlusOp || tt == MinusOp = dummySymbol $ mathType children m scope
+  |tt == OpenBrace = dummySymbol $ head $! typeCheckChildren children m (scope+1)
+  |tt == IntOp = dummySymbol I 
+  |tt == CharOp = dummySymbol S
   |tt == ID = getSymbol 
   where 
     tt = kind $ original ast
     key = contents $ original ast
+    dummySymbol t = Symbol "dummy" (-1) t "" False
     getSymbol
      |symbol == Errer = error("Undecleraed ID")
-     |otherwise = sType symbol
+     |otherwise = symbol
      where symbol = findInScope m key scope
 
 typeCheckChildren :: [AST] -> ScopeMap -> Int -> [SymbolType]
@@ -30,35 +31,44 @@ typeCheckChildren [] m scope = []
 typeCheckChildren (child: childs) m scope = 
     childScope : kidsScope
   where
-    !childScope = trace("looking at child") typeCheck child m scope
+    !childScope = sType $ typeCheck child m scope
     !kidsScope = typeCheckChildren childs m scope
 
 assignType :: [AST] -> ScopeMap -> Int -> SymbolType
 assignType (child1:child2:[]) m scope
-  |left /= right = error("Type mismatch in assignment. "
-    ++"Found something" ++ (show $ right) ++ "something else on line number number") 
-  |otherwise = left
+  |lt /= rt = error("Type mismatch in assignment of: "  ++ (name left)
+    ++" Found: " ++ (expandType rt) ++ " Expected: " ++ (expandType lt)
+    ++ " on line: " ++ (show line)) 
+  |otherwise = lt
   where 
     !left = typeCheck child1 m scope 
     !right = typeCheck child2 m scope
+    lt = sType left
+    rt = sType right
+    AST node _  = child1
+    line = location $ original node
 
 mathType :: [AST] -> ScopeMap -> Int -> SymbolType
 mathType (child1:child2:[]) m scope
-  |left == S = error("Error: Found String on left of plus. Note: " 
-        ++"Plus is not for String concatenation")
-  |right == S = error("Error: Found String on right of plus. Note: "
-       ++ "Plus is not for String concatenation")
-  |otherwise = trace("Math typechecks" ++ (show child1)) I
+  |lt == S = error("Error: Found String on left of plus. Line: " ++ (show line)
+        ++ "\n Note: Plus is not for String concatenation") 
+  |rt == S = error("Error: Found String on right of plus. Line: " ++ (show line)
+      ++ " \nNote: Plus is not for String concatenation")
+  |otherwise = I
   where
     !left = typeCheck child1 m scope
     !right = typeCheck child2 m scope 
+    lt = sType left
+    rt = sType right
+    AST node _  = child1
+    line = location $ original node
 
 printType :: [AST] -> ScopeMap -> Int -> SymbolType
 printType (child1:[]) m scope 
   |tt == PlusOp = mathType children m scope
   |tt == CharacterList = S
   |tt == Digit = I
-  |otherwise = typeCheck child1 m scope
+  |otherwise = sType $ typeCheck child1 m scope
   where 
     tt = kind $ original parent
     AST parent children = child1 

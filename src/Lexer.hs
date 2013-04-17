@@ -31,8 +31,24 @@ processFile (line:moreLines) x =
 
 processLine :: String -> Int -> TokenList 
 processLine line lineNum = 
-  let brokenLine = words line 
+  let brokenLine = respectQuotes $ words line 
   in foldr (\ word next -> processWord word lineNum ++ next) [] brokenLine
+   
+respectQuotes :: [String] -> [String] 
+respectQuotes [] = []
+respectQuotes (x:xs)
+  |x =~ startQuote :: Bool = 
+    let 
+      quoted = takeWhile(inQuotes) (x:xs)
+      concated = unwords quoted
+    in concated : respectQuotes (quoted \\ (x:xs))
+  |otherwise = x:respectQuotes xs
+  where 
+    word = "[a-z0-9]*"
+    startQuote = "(^\")[a-z0-9 ]*(?!\")"
+    endQuotes = "(!^\")[a-z0-9]*(\")"
+    inQuotes y = ((y =~ word :: Bool) || (y =~ endQuotes :: Bool))
+
 
 processWord :: String -> Int -> TokenList 
 processWord [] _ = []
@@ -118,13 +134,3 @@ debugPrint (x:xs)
 
 findEOF :: TokenList -> Int
 findEOF x = findToken x EOF
-
-words' :: String -> [String]
-words' "" = []
-words' s = map stripquotes $ fromparse $ parsewith p s
-  where
-   p = do 
-    ss <- (quotedPattern <|> pattern) `sepBy` many1 spacenonewline
-    return ss
-   pattern = many (noneOf whitespacechars)
-   quotedPattern = between (oneOf "'\"") (oneOf "'\"") $ many $ noneOf "'\""

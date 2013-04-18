@@ -1,7 +1,8 @@
 module SymbolTable where
-import Data.Map
+import qualified Data.Map as Map
 import Token
 import AST
+import Debug.Trace
 
 data Symbol = Symbol{
   name :: String,
@@ -11,8 +12,8 @@ data Symbol = Symbol{
   used :: Bool
 }|Errer deriving(Show, Eq)
 
-type SymbolTable = Map String (Symbol,Int)
-type ScopeMap = Map Int SymbolTable
+type SymbolTable = Map.Map String (Symbol,Int)
+type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
 expandType :: SymbolType -> String
@@ -23,32 +24,32 @@ expandType t
 
 tokenAndTypeToSymbol :: Token -> SymbolType -> Symbol
 tokenAndTypeToSymbol token ty = 
-  Symbol{name = c, address = l, sType = ty, value = c, used = False}
+  Symbol{name = c, address = l, sType = ty, value = "", used = False}
   where 
     c = contents token
     l = location token
 
 insertInScope :: ScopeMap -> Symbol -> Scope -> ScopeMap
 insertInScope m symbol (pscope,scope)
-  |member scope m = adjust (insertSymbol) scope m
-  |otherwise = insert scope (fromList[(key,(symbol,pscope))]) m
+  |Map.member scope m = Map.adjust (insertSymbol) scope m
+  |otherwise = Map.insert scope (Map.fromList[(key,(symbol,pscope))]) m
   where
-    key = name symbol 
+    key = name symbol
     insertSymbol table
-      |member key table = 
+      |Map.member key table = 
         error("Redecleration of Symbol " ++ key ++ " on line " ++ (show $ location)) 
-      |otherwise = insert key (symbol,pscope) table
+      |otherwise = Map.insert key (symbol,pscope) table
     location = address symbol
 
 findInScope :: ScopeMap -> String -> Int -> Symbol
 findInScope m key scope 
-  |member scope m = 
-    let table = m ! scope
-    in if member key table
-       then fst (table ! key)
+  |Map.member scope m = 
+    let table = m Map.! scope
+    in if Map.member key table
+       then fst (table Map.! key)
        else findInScope m key (parent table)
   |otherwise = Errer 
-  where parent = snd . head . elems
+  where parent = snd . head . Map.elems
 
 updateValue :: ScopeMap -> Token -> Scope -> String -> ScopeMap
 updateValue m t (pscope,scope) v 
@@ -64,13 +65,34 @@ updateValue m t (pscope,scope) v
 
 update :: ScopeMap -> Symbol -> (Int,Int) -> ScopeMap
 update m symbol (pscope,scope) =
-  adjust (insertSymbol) scope m
+  Map.adjust (insertSymbol) scope m
   where 
     key = name symbol 
-    insertSymbol table = insert key (symbol,pscope) table
+    insertSymbol table = Map.insert key (symbol,pscope) table
 
 use :: ScopeMap -> String -> Scope -> ScopeMap
 use m key (pscope,scope) = SymbolTable.update m symbol (pscope,scope)
   where
     s = findInScope m key scope
     symbol = Symbol (name s) (address s) (sType s) (value s) True
+
+warnUsedButUnintilized :: ScopeMap -> [Symbol]
+warnUsedButUnintilized m = filter (test) (compress m)
+  where
+    test s = 
+      let Symbol _ _ _ val use = s
+      in if (val == "" && use) then True else False 
+
+warnDecleredButUnUsed :: ScopeMap -> [Symbol]
+warnDecleredButUnUsed m = filter (test) (compress m)
+  where
+    test s =
+      let Symbol _ _ _ _ use = s
+      in not use
+
+compress :: ScopeMap -> [Symbol]
+compress m = symbols
+  where 
+    listyList = Prelude.map Map.elems (Map.elems m)
+    listy = concat listyList
+    symbols = map fst listy

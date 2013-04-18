@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Lexer where
 
 import Token
@@ -28,11 +29,11 @@ processFile [] _ = []
 processFile (line:moreLines) x =
   processLine line x ++ processFile moreLines (x+1) 
 
-
 processLine :: String -> Int -> TokenList 
 processLine line lineNum = 
-  let brokenLine = respectQuotes $ words line 
-  in foldr (\ word next -> processWord word lineNum ++ next) [] brokenLine
+  let 
+    brokenLine = respectQuotes $ words line 
+  in foldr (\word next ->trace(word) $ processWord word lineNum ++ next) [] brokenLine
    
 respectQuotes :: [String] -> [String] 
 respectQuotes [] = []

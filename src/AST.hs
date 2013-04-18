@@ -10,7 +10,7 @@ data ASTNode =
    }
 
 data SymbolType = I | S | N{scope :: Int}
-  deriving(Eq)
+  deriving(Show,Eq)
 
 instance Show ASTNode where 
   show node  

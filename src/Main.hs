@@ -8,6 +8,7 @@ import System.Environment
 import AST
 import Data.Map as Map 
 import SymbolTable
+
 main = do
   --readIORef  ref >>= print 
   [inFile] <- getArgs
@@ -23,8 +24,10 @@ main = do
   let !dummySymbol = typeCheck newAst symboltable 0
   let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
   putStrLn (show newAst)
-  putStrLn(show updatedSymbolTable)
-  putStrLn "done"
+  let warnings1 = warnUsedButUnintilized updatedSymbolTable
+  let warnings2 = warnDecleredButUnUsed updatedSymbolTable
+  putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
+  putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
 
 third (_,_,x) = x
 second (_,x,_) = x

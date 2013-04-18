@@ -9,13 +9,16 @@ data ASTNode =
     tokentype :: SymbolType 
    }
 
-data SymbolType = I | S | N
-  deriving(Show, Eq)
+data SymbolType = I | S | N{scope :: Int}
+  deriving(Eq)
 
 instance Show ASTNode where 
-  show node = let token = original node
-    in (show $ kind token) ++ " " ++ (contents token) ++ " " ++ (show $ tokentype node)
-
+  show node  
+    |(kind $ original node) == OpenBrace = let token = original node
+      in (show $ kind token) ++ " " ++ (contents token) ++ " " ++ (show $ tokentype node)
+    |otherwise = let token = original node
+      in (show $ kind token) ++ " " ++ (contents token)
+    
 instance Show AST where
   show ast = drawTree ast
 
@@ -27,7 +30,8 @@ newNode :: Token -> ASTNode
 newNode token 
   |tt == Digit || tt == IntOp || tt == PlusOp || tt == MinusOp = Terminal token I 
   |tt == CharOp || tt == CharacterList = Terminal token S 
-  |otherwise = Terminal token N 
+  |tt == OpenBrace = Terminal token (N 0)
+  |otherwise = Terminal token (N 0)
   where tt = kind token
 
 

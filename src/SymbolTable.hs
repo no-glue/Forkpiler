@@ -68,3 +68,9 @@ update m symbol (pscope,scope) =
   where 
     key = name symbol 
     insertSymbol table = insert key (symbol,pscope) table
+
+use :: ScopeMap -> String -> Scope -> ScopeMap
+use m key (pscope,scope) = SymbolTable.update m symbol (pscope,scope)
+  where
+    s = findInScope m key scope
+    symbol = Symbol (name s) (address s) (sType s) (value s) True

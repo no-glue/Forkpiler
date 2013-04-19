@@ -1,4 +1,5 @@
-	# Assignment 2
+# Assignment 2
+
 ## Initial Testing
 
 The first thing I did was make sure that everything that passed and failed before passed and failed again. Immediately I ran into some worrisome errors. It turns out though that this was because there were undeclared identifiers and other errors that can now be found, but couldn’t before, in my old test cases. Everything that failed in parse before though still failed in parse, except for the quotes with strings in them. ## Passing Tests

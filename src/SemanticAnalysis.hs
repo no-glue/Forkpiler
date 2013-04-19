@@ -27,6 +27,8 @@ updateChildren (child:childs) m (pscope,scope) =
   in updateChildren childs nm (pscope,scope)
 
 assignValues :: Children -> ScopeMap -> Scope -> ScopeMap
+assignValues [] m scope = m
+assignValues (child:[]) m scope = m
 assignValues (child1:child2:[]) m scope
   |opType == CharacterList =
     let value = contents (original op)
@@ -40,6 +42,7 @@ assignValues (child1:child2:[]) m scope
     AST op kids = child2
     opType = kind (original op)
     token = original id
+assignValues kids m scope = m
 
 usedInMath :: Children -> ScopeMap -> Scope -> ScopeMap
 usedInMath (child1:child2:[]) m scope

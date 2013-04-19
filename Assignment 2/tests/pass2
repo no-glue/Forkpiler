@@ -1,0 +1,22 @@
+{
+  int a
+  {
+    int b
+    int c
+  }
+  {
+    int a
+    {
+      int a
+      {
+        int a
+        a = 3
+      }
+    }
+  }
+  {
+    string b
+    string z
+    b = z
+  }
+}

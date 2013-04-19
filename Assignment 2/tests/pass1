@@ -1,0 +1,12 @@
+{
+  int a
+  a = 4 + 2 + 6
+  {
+    string a
+    a = "hey you guys"
+  }
+  {
+    int a
+    a = 5 + 6+ 7
+  }
+}

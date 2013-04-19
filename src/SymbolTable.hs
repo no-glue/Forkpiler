@@ -96,3 +96,6 @@ compress m = symbols
     listyList = Prelude.map Map.elems (Map.elems m)
     listy = concat listyList
     symbols = map fst listy
+
+emptySymbolTable :: ScopeMap
+emptySymbolTable = Map.fromList [(0, (Map.empty))]

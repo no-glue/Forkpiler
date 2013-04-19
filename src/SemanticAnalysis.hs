@@ -140,7 +140,7 @@ printType (child1:[]) m scope
     AST parent children = child1 
 
 buildSymbolTable :: AST -> (ScopeMap,AST)
-buildSymbolTable tree = symbolLine (tree , Map.empty, (0,0))
+buildSymbolTable tree = symbolLine (tree , emptySymbolTable, (0,0))
 
 symbolLine :: (AST, ScopeMap, Scope) -> (ScopeMap,AST)
 symbolLine (AST parent [], m, (pscope, scope)) = (m,(AST parent []))

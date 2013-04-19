@@ -1,0 +1,11 @@
+{
+  string a
+  a = "you over there"
+  {
+    int v 
+    print ( 2 + v)
+    {
+      a = v
+    }
+  }
+}  

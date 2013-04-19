@@ -1,0 +1,12 @@
+{
+  int b
+  {
+    int b
+    {
+      int a
+      a = b
+    }
+    string c 
+    b= c
+   }
+}

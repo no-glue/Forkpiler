@@ -1,0 +1,5 @@
+{
+  string a
+  int b
+  a = b
+}

@@ -25,3 +25,6 @@ can be done in any folder on your computer.
 
 # Assignment 1
 All of the test files and the test writeup are in the assignment 1 folder. All of the working code is currently on branch assignment1. Just pull the repo and checkout assignment1 and everything will show up.
+
+# Assignment 2
+All of the files for the second assignment are in the assignment 2 folder. Currently an assignment 2 branch has not been made. Once/if it is I'll update this. If there never is than master is where the current code will be.

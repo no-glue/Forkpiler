@@ -10,27 +10,31 @@ data Symbol = Symbol{
   sType   :: SymbolType,
   value   :: String,
   used    :: Bool
-}|Errer deriving(Show, Eq)
+}|Errer deriving(Eq)
 
 type SymbolTable = Map.Map String (Symbol,Int)
 type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
+instance Show Symbol where
+  show symbol
+    |name symbol == "parent" = "" 
+    |name symbol == "dummy" = "\n"
+    |otherwise = "Symbol:" ++ (name symbol) ++ " With Type: " 
+      ++ (show $ sType symbol) ++ " and Value: " ++ (value symbol)
+
 prettyPrint :: ScopeMap -> String 
-prettyPrint m = trace "Symbol Table\n" 
+prettyPrint m = trace "\nSymbol Table" 
   Map.foldlWithKey prettyify "" m
   where 
     prettyify sum k a = Map.foldlWithKey subPretty 
       (trace("Scope: " ++ (show k) ++ "\n") sum) a
     subPretty sum2 k2 a2
-      |n == "parent" = sum2
-      |otherwise = "Symbol: " ++ n ++ " With Type: " 
-        ++ t ++ " and Value: " ++ v ++ "\n" ++ sum2
-      where
+      |n == "parent" = "Parent Scope=" ++ (show $ address symbol) ++ "\n" ++ sum2
+      |otherwise = (show symbol) ++ "\n" ++ sum2
+      where 
         (symbol, scope) = a2
         n = name symbol
-        t = show $ sType symbol
-        v = value symbol
 
 expandType :: SymbolType -> String
 expandType t

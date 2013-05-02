@@ -163,8 +163,8 @@ statement (tree, m, scope)
   |tt == CharOp = (tree, charScope child m scope) 
   |tt == OpenBrace =
     let
-      dummy = tokenAndTypeToSymbol (Token "parent" (-1) Digit) I
       nextScope = findNextScope m s
+      dummy = tokenAndTypeToSymbol (Token "parent" s Digit) I
       !newMap = insertInScope m dummy (s, nextScope)
       newParent = AST $ Terminal (original parent) (N nextScope)
       --make a new map and rebuild set of children

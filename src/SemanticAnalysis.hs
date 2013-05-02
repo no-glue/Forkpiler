@@ -184,13 +184,6 @@ bracket (kid:kids) (m, scope, children) =
   let (child, newMap) = statement (kid, m, scope)
   in bracket kids (newMap, scope, children++[child]) 
 
-brace :: Children -> (ScopeMap, Scope, Children) -> (ScopeMap, Children)
-brace [] (m,_,kids) = (m,kids)
-brace (kid:kids) (m, (pscope,scope), childs) =
-  let 
-    (nm,child) = symbolLine (kid, m,(pscope,scope)) 
-  in brace kids (nm, (pscope,scope), (childs++[child]))
-
 intScope :: AST -> ScopeMap -> Scope -> ScopeMap
 intScope (AST parent []) m scope = updatedMap
     where 
@@ -208,26 +201,3 @@ charScope (AST parent []) m scope = updatedMap
 findNextScope :: ScopeMap -> Int -> Int
 findNextScope m current = if Map.member current m 
   then findNextScope m (current+1) else current
-
---Looks at a single line and checks for the existance
---of decleration statements
-symbolLine :: (AST, ScopeMap, Scope) -> (ScopeMap,AST)
-symbolLine (AST parent [], m, (pscope, scope)) = (m,(AST parent []))
-symbolLine (AST parent childs, m, (pscope, scope))
- -- |tt == IntOp = (intScope (child, m, (pscope, scope)), oldParent)
- --  |tt == CharOp = (charScope (child, m, (pscope, scope)), oldParent)
-  |tt == OpenBrace =
-    let (nm, kids) = brace childs (updatedMap, (pscope, nextScope), [])
-    in (nm, updatedParent kids)
-  |otherwise =
-    let (nm, kids) = symbolLine (child, m, (pscope, scope))
-    in (nm, oldParent)
-  where
-    (child:children) = childs
-    tt = kind $ original parent
-    updatedParent = AST $ Terminal (original parent) (N nextScope)
-    nextScope = findNextScope updatedMap (scope)
-    oldParent = AST parent childs
-    updatedMap = insertInScope m symbol (pscope,scope)
-    symbol = tokenAndTypeToSymbol (Token "parent" (-1) Digit) I
-

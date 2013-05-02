@@ -16,14 +16,15 @@ type SymbolTable = Map.Map String (Symbol,Int)
 type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
-prettyPrint :: SymbolTable -> String
-prettyPrint [] = ""
+prettyPrint :: ScopeMap -> String 
 prettyPrint m = Map.foldrWithKey prettyify "" m
   where 
-    prettyify k a = Map.foldrWithKey subPretty "Scope: " ++ (show k) ++ "\n" a
-    subPretty k2 a2
-      |n == "parent" = "Parent Scope = " ++ (show scope)
-      |otherwise = "Symbol: " ++ n ++ " With Type: " ++ t ++ " and Value: " ++ v  
+    prettyify k a sum = Map.foldrWithKey subPretty 
+      ("Scope: " ++ (show k) ++ "\n" ++ sum) a
+    subPretty k2 a2 sum2
+      |n == "parent" = "Parent Scope = " ++ (show scope) ++ sum2
+      |otherwise = "Symbol: " ++ n ++ " With Type: " 
+        ++ t ++ " and Value: " ++ v ++ sum2
       where
         (symbol, scope) = a2
         n = name symbol

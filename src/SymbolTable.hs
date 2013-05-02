@@ -5,11 +5,11 @@ import AST
 import Debug.Trace
 
 data Symbol = Symbol{
-  name :: String,
+  name    :: String,
   address :: Int,
-  sType :: SymbolType,
-  value :: String,
-  used :: Bool
+  sType   :: SymbolType,
+  value   :: String,
+  used    :: Bool
 }|Errer deriving(Show, Eq)
 
 type SymbolTable = Map.Map String (Symbol,Int)
@@ -18,7 +18,7 @@ type Scope = (Int, Int)
 
 prettyPrint :: ScopeMap -> String 
 prettyPrint m = trace "\nSymbol Table\n" 
-  Map.foldlWithKey prettyify "Symbol Table :" m
+  Map.foldlWithKey prettyify "" m
   where 
     prettyify sum k a = Map.foldlWithKey subPretty 
       (trace("Scope: " ++ (show k) ++ "\n") sum) a

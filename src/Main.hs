@@ -19,11 +19,12 @@ main = do
  -- let test = analyze result
   --putStrLn (show ast)
   let !(newAst,symboltable) = buildSymbolTable ast
-  putStrLn $ prettyPrint symboltable 
+  putStrLn "\n"
   putStrLn $ show newAst
   let dummySymbol = typeCheck newAst symboltable 0
   print $ show dummySymbol
   let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
+  putStrLn $ prettyPrint updatedSymbolTable 
   let warnings1 = warnUsedButUnintilized updatedSymbolTable
   let warnings2 = warnDecleredButUnUsed updatedSymbolTable
   putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)

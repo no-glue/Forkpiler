@@ -20,7 +20,7 @@ main = do
   --putStrLn (show ast)
   let !(newAst,symboltable) = buildSymbolTable ast
   putStrLn $ prettyPrint symboltable 
-  print $ show newAst
+  putStrLn $ show newAst
   let dummySymbol = typeCheck newAst symboltable 0
   print $ show dummySymbol
   let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 

@@ -17,7 +17,7 @@ type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
 prettyPrint :: ScopeMap -> String 
-prettyPrint m = trace "\nSymbol Table\n" 
+prettyPrint m = trace "Symbol Table\n" 
   Map.foldlWithKey prettyify "" m
   where 
     prettyify sum k a = Map.foldlWithKey subPretty 

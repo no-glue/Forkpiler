@@ -16,6 +16,20 @@ type SymbolTable = Map.Map String (Symbol,Int)
 type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
+prettyPrint :: SymbolTable -> String
+prettyPrint [] = ""
+prettyPrint m = Map.foldrWithKey prettyify "" m
+  where 
+    prettyify k a = Map.foldrWithKey subPretty "Scope: " ++ (show k) ++ "\n" a
+    subPretty k2 a2
+      |n == "parent" = "Parent Scope = " ++ (show scope)
+      |otherwise = "Symbol: " ++ n ++ " With Type: " ++ t ++ " and Value: " ++ v  
+      where
+        (symbol, scope) = a2
+        n = name symbol
+        t = show $ sType symbol
+        v = value symbol
+
 expandType :: SymbolType -> String
 expandType t
   |t == S = "string"

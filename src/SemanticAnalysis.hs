@@ -81,7 +81,7 @@ typeCheck (AST ast children) m scop
   |tt == PlusOp || tt == MinusOp = dummySymbol $ mathType children m scop
   |tt == OpenBrace = 
     let nextScope = scope (tokentype ast)
-    in dummySymbol $ head $! typeCheckChildren children m nextScope
+    in dummySymbol $ head' $! typeCheckChildren children m nextScope
   |tt == IntOp = dummySymbol I
   |tt == CharOp = dummySymbol S
   |tt == ID = getSymbol 
@@ -91,9 +91,13 @@ typeCheck (AST ast children) m scop
     line = location $ original ast
     dummySymbol t = Symbol "dummy" (-1) t "" False
     getSymbol
-     |symbol == Errer = error("Undecleraed ID: " ++ key ++ " on Line: " ++ (show line))
+     |symbol == Errer = error("Undecler ID: " ++ key ++ " on Line: " ++ (show line))
      |otherwise = symbol
      where symbol = findInScope m key scop
+
+head' :: [SymbolType] -> SymbolType 
+head' [] = I
+head' (x:xs) = x
 
 typeCheckChildren :: [AST] -> ScopeMap -> Int -> [SymbolType]
 typeCheckChildren [] m scope = [] 
@@ -142,45 +146,88 @@ printType (child1:[]) m scope
     tt = kind $ original parent
     AST parent children = child1 
 
-buildSymbolTable :: AST -> (ScopeMap,AST)
-buildSymbolTable tree = symbolLine (tree , emptySymbolTable, (0,0))
+--Initial Building of the symbol table
+--Also sets up the scopes on the AST
+--buildSymbolTable :: AST -> (ScopeMap,AST)
+--buildSymbolTable tree = symbolLine (tree, emptySymbolTable, (0,0))
 
-symbolLine :: (AST, ScopeMap, Scope) -> (ScopeMap,AST)
-symbolLine (AST parent [], m, (pscope, scope)) = (m,(AST parent []))
-symbolLine (AST parent childs, m, (pscope, scope))
-  |tt == IntOp = (intScope (child, m, (pscope, scope)), oldParent)
-  |tt == CharOp = (charScope (child, m, (pscope, scope)), oldParent)
-  |tt == OpenBrace = 
-    let (nm, kids) = brace childs (m,(scope,findNextScope m scope), [])
-    in (nm, updatedParent kids)
-  |otherwise = 
-    let (nm, kids) = symbolLine (child, m, (pscope, scope))
-    in (nm, oldParent)
-  where 
-    (child:children) = childs
+buildSymbolTable :: AST -> (AST, ScopeMap)
+buildSymbolTable tree = statement (tree, emptySymbolTable, (-1,0))
+
+--looks at a single statement and only fires on brackets
+--and variable declerations
+statement :: (AST, ScopeMap, Scope) -> (AST, ScopeMap)
+statement (AST parent [], m, _) = (AST parent [], m)
+statement (tree, m, scope) 
+  |tt == IntOp = (tree, intScope child m scope)
+  |tt == CharOp = (tree, charScope child m scope) 
+  |tt == OpenBrace =
+    let
+      dummy = tokenAndTypeToSymbol (Token "parent" (-1) Digit) I
+      nextScope = findNextScope m s
+      !newMap = insertInScope m dummy (s, nextScope)
+      newParent = AST $ Terminal (original parent) (N nextScope)
+      --make a new map and rebuild set of children
+      (!kids, !updatedMap) = bracket (child:children) (newMap, (s, nextScope), [])
+    in (newParent kids, updatedMap)
+  |otherwise =
+    let (_, updated) = statement (child, m, scope)
+    in  (tree, updated)
+  where
+    AST parent (child:children) = tree
+    (p, s) = scope
     tt = kind $ original parent
-    updatedParent = AST (Terminal (original parent) (N $ findNextScope m scope))
-    oldParent = AST parent childs
+
+bracket :: Children -> (ScopeMap, Scope, Children) -> (Children, ScopeMap)
+bracket [] (m, _, kids) = (kids, m)
+bracket (kid:kids) (m, scope, children) = 
+  let (child, newMap) = statement (kid, m, scope)
+  in bracket kids (newMap, scope, children++[child]) 
 
 brace :: Children -> (ScopeMap, Scope, Children) -> (ScopeMap, Children)
 brace [] (m,_,kids) = (m,kids)
 brace (kid:kids) (m, (pscope,scope), childs) =
-  let !(nm,child) = symbolLine (kid, m,(pscope,scope)) 
-  in brace kids (nm, (pscope,scope),(childs++[child]))
+  let 
+    (nm,child) = symbolLine (kid, m,(pscope,scope)) 
+  in brace kids (nm, (pscope,scope), (childs++[child]))
 
-intScope :: (AST, ScopeMap, Scope) -> ScopeMap
-intScope ((AST parent([])), m, scope) = updatedMap
+intScope :: AST -> ScopeMap -> Scope -> ScopeMap
+intScope (AST parent []) m scope = updatedMap
     where 
       updatedMap = insertInScope m symbol scope
       symbol = tokenAndTypeToSymbol t I
       t = original parent
 
-charScope :: (AST, ScopeMap, Scope) -> ScopeMap
-charScope ((AST parent([])), m, scope) = updatedMap
+charScope :: AST -> ScopeMap -> Scope -> ScopeMap
+charScope (AST parent []) m scope = updatedMap
     where 
       updatedMap = insertInScope m symbol scope
       symbol = tokenAndTypeToSymbol t S
       t = original parent
 
 findNextScope :: ScopeMap -> Int -> Int
-findNextScope m current = if Map.member current m then findNextScope m (current+1) else current
+findNextScope m current = if Map.member current m 
+  then findNextScope m (current+1) else current
+
+--Looks at a single line and checks for the existance
+--of decleration statements
+symbolLine :: (AST, ScopeMap, Scope) -> (ScopeMap,AST)
+symbolLine (AST parent [], m, (pscope, scope)) = (m,(AST parent []))
+symbolLine (AST parent childs, m, (pscope, scope))
+ -- |tt == IntOp = (intScope (child, m, (pscope, scope)), oldParent)
+ --  |tt == CharOp = (charScope (child, m, (pscope, scope)), oldParent)
+  |tt == OpenBrace =
+    let (nm, kids) = brace childs (updatedMap, (pscope, nextScope), [])
+    in (nm, updatedParent kids)
+  |otherwise =
+    let (nm, kids) = symbolLine (child, m, (pscope, scope))
+    in (nm, oldParent)
+  where
+    (child:children) = childs
+    tt = kind $ original parent
+    updatedParent = AST $ Terminal (original parent) (N nextScope)
+    nextScope = findNextScope updatedMap (scope)
+    oldParent = AST parent childs
+    updatedMap = insertInScope m symbol (pscope,scope)
+    symbol = tokenAndTypeToSymbol (Token "parent" (-1) Digit) I
+

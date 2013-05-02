@@ -17,7 +17,7 @@ type ScopeMap = Map.Map Int SymbolTable
 type Scope = (Int, Int)
 
 expandType :: SymbolType -> String
-expandType t 
+expandType t
   |t == S = "string"
   |t == I = "int"
   |otherwise = "no type"
@@ -25,7 +25,7 @@ expandType t
 tokenAndTypeToSymbol :: Token -> SymbolType -> Symbol
 tokenAndTypeToSymbol token ty = 
   Symbol{name = c, address = l, sType = ty, value = "", used = False}
-  where 
+  where
     c = contents token
     l = location token
 
@@ -36,7 +36,7 @@ insertInScope m symbol (pscope,scope)
   where
     key = name symbol
     insertSymbol table
-      |Map.member key table = 
+      |Map.member key table && key /= "parent" = 
         error("Redecleration of Symbol " ++ key ++ " on line " ++ (show $ location)) 
       |otherwise = Map.insert key (symbol,pscope) table
     location = address symbol
@@ -45,11 +45,16 @@ findInScope :: ScopeMap -> String -> Int -> Symbol
 findInScope m key scope 
   |Map.member scope m = 
     let table = m Map.! scope
-    in if Map.member key table
+    in 
+    if Map.member key table
        then fst (table Map.! key)
-       else findInScope m key (parent table)
-  |otherwise = Errer 
-  where parent = snd . head . Map.elems
+       else if scope /= 0
+         then findInScope m key (parent table)
+         else cantFind
+  |otherwise = cantFind
+   where 
+    parent = snd . head . Map.elems
+    cantFind =  trace ("couldn't find " ++ (show scope)) Errer 
 
 updateValue :: ScopeMap -> Token -> Scope -> String -> ScopeMap
 updateValue m t (pscope,scope) v 
@@ -98,4 +103,4 @@ compress m = symbols
     symbols = map fst listy
 
 emptySymbolTable :: ScopeMap
-emptySymbolTable = Map.fromList [(0, (Map.empty))]
+emptySymbolTable = Map.empty--Map.fromList [(0, (Map.empty))]

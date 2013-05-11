@@ -40,10 +40,13 @@ statement (token:rest) =
         let (decleration, child) = trace("Parsing char decleration") varDecl rest
         in  (decleration, addChildTree ast child)
     While ->
-    let
-      (remaining,ast2) = trace("Parsing while") booleanExpression rest
-      consumeTokenAsChild   
-    in (consumed, addChildTree ast childTree)
+      let
+        ((openbrace:block),boolChild) = trace("Parsing while") booleanExpression rest
+        --partially applied then added to the block as a parent
+        blockParent = consumeTokenAsParent OpenBrace
+        blockChild = blockParent (openbrace,statement block)
+        whileBool = addChildTree ast boolChild
+      in addChildTree whileBool blockChild
     OpenBrace ->
       let 
         (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
@@ -98,3 +101,11 @@ intExper ((token:rest), ast) =
       _ ->  ((token:rest),ast)
     where tt = kind token 
           parent = addChildTree (AST (newNode token) []) ast
+
+booleanExpression :: TokenList -> TokenAST
+booleanExpression [] = error "Error: Found nothing -- Expected Boolean Expression"
+booleanExpression (x:xs)
+  |tt == ParenOpen = 
+    let
+      ((equals, rest), leftChild) = trace "Parsing left expression in boolean expression" exper xs
+      parent = consumeTokenAsParent 

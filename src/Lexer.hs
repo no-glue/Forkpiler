@@ -56,7 +56,13 @@ processWord :: String -> Int -> TokenList
 processWord [] _ = []
 processWord input lineNum 
   |input =~ boolean :: Bool =
-    let token = Token (input =~ boolean :: String) lineNum CharacterList
+    let token = Token (input =~ boolean :: String) lineNum Boolean
+    in token : processWord (input \\ (contents token)) lineNum
+  |input =~ true :: Bool =
+    let token = Token (input =~ true :: String) lineNum TrueOp
+    in token : processWord (input \\ (contents token)) lineNum 
+  |input =~ false :: Bool =
+    let token = Token (input =~ :: String) lineNum FalseOp
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ characterList :: Bool =
     let token = Token (input =~ characterList :: String) lineNum CharacterList 
@@ -139,6 +145,8 @@ processWord input lineNum
     while = "^while"
     ifId = "^if"
     boolean = "^boolean"
+    true = "^true"
+    false = "^false"
     eof = "^\\$"
 
 debugPrint :: [Token] -> IO ()

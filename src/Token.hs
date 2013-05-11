@@ -18,6 +18,8 @@ data TokenType = ParenOpen
   |While
   |If
   |Boolean
+  |TrueOp
+  |FalseOp
   |Error
   |Warning
   deriving(Eq, Ord, Enum, Show)

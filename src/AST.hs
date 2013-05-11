@@ -9,7 +9,7 @@ data ASTNode =
     tokentype :: SymbolType 
    }
 
-data SymbolType = I | S | N{scope :: Int}
+data SymbolType = I | S | B | N{scope :: Int}
   deriving(Show,Eq)
 
 instance Show ASTNode where 
@@ -30,6 +30,7 @@ newNode :: Token -> ASTNode
 newNode token 
   |tt == Digit || tt == IntOp || tt == PlusOp || tt == MinusOp = Terminal token I 
   |tt == CharOp || tt == CharacterList = Terminal token S 
+  |tt == TrueOp || tt == FalseOp = Terminal token B
   |tt == OpenBrace = Terminal token (N 0)
   |otherwise = Terminal token (N 0)
   where tt = kind token

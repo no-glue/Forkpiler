@@ -62,7 +62,7 @@ processWord input lineNum
     let token = Token (input =~ true :: String) lineNum TrueOp
     in token : processWord (input \\ (contents token)) lineNum 
   |input =~ false :: Bool =
-    let token = Token (input =~ :: String) lineNum FalseOp
+    let token = Token (input =~ false :: String) lineNum FalseOp
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ characterList :: Bool =
     let token = Token (input =~ characterList :: String) lineNum CharacterList 

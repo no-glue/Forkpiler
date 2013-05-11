@@ -19,41 +19,37 @@ parse tokens =
   
 statement :: TokenList -> TokenAST  
 [] = statementError 
-statement (token:rest) =
-  case (kind token) of
-    PrintOp ->
+statement (token:rest)
+    |tt == PrintOp =
       let
         remaining = trace("Parsing print op")  consumeToken ParenOpen rest
         (follow, experTree) = exper remaining
         !consumed = consumeToken ParenClose follow
       in (consumed ,addChildTree ast experTree)
-    ID ->
+    |tt == ID =  
       let 
         (remaining, ast2) = trace("Parsing Id expression") 
           consumeTokenAsParent EqualsOp (rest,ast)
         (expression, child) = exper remaining
       in (expression, addChildTree ast2 child)
-    IntOp ->
-      let (decleration, child) = trace("Parsing int decleration") varDecl rest
+    |tt == IntOp || tt == CharOp =
+      let (decleration, child) = trace("Parsing decleration") varDecl rest
       in  (decleration, addChildTree ast child)
-    CharOp ->
-        let (decleration, child) = trace("Parsing char decleration") varDecl rest
-        in  (decleration, addChildTree ast child)
-    While ->
+    |tt == While || tt == If =
       let
-        ((openbrace:block),boolChild) = trace("Parsing while") booleanExpression rest
-        --partially applied then added to the block as a parent
-        blockParent = consumeTokenAsParent OpenBrace
-        blockChild = blockParent (openbrace,statement block)
+        (block,boolChild) = trace("Parsing while") booleanExpression rest
+        (remaining, blockChild) = statement block
         whileBool = addChildTree ast boolChild
-      in addChildTree whileBool blockChild
-    OpenBrace ->
+      in (remaining, addChildTree whileBool blockChild)
+    |tt == OpenBrace =
       let 
         (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)
         !consumed = consumeToken CloseBrace remaining
       in (consumed, ast2) 
-    _ -> unexpected token
-    where ast = AST (newNode token) []
+    |otherwise = unexpected token
+    where
+      ast = AST (newNode token) []
+      tt = kind token
 
 exper :: TokenList -> TokenAST 
 exper [] = error("Error: Found nothing -- Expected digit, " ++
@@ -107,5 +103,10 @@ booleanExpression [] = error "Error: Found nothing -- Expected Boolean Expressio
 booleanExpression (x:xs)
   |tt == ParenOpen = 
     let
-      ((equals, rest), leftChild) = trace "Parsing left expression in boolean expression" exper xs
-      parent = consumeTokenAsParent 
+      ((equals:rest), leftChild) = trace "Parsing left expression in boolean expression" exper xs
+      (leftSide, parent) = consumeTokenAsParent Equality ([equals], leftChild)
+      (remaining, rightChild) = trace "Parsing right expression in boolean expression" exper leftSide
+    in (remaining, addChildTree parent rightChild)
+  |tt == FalseOp || tt == TrueOp = (xs, AST (newNode x) [])
+  |otherwise = unexpected x
+  where tt = kind x

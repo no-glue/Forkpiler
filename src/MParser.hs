@@ -32,7 +32,7 @@ statement (token:rest)
           consumeTokenAsParent EqualsOp (rest,ast)
         (expression, child) = exper remaining
       in (expression, addChildTree ast2 child)
-    |tt == IntOp || tt == CharOp =
+    |tt == IntOp || tt == CharOp || tt == Boolean =
       let (decleration, child) = trace("Parsing decleration") varDecl rest
       in  (decleration, addChildTree ast child)
     |tt == While || tt == If =
@@ -58,6 +58,8 @@ exper (token:rest)
     |tt == Digit = intExper (rest,ast)
     |tt == CharacterList = trace("Parsed character list") (rest,ast)
     |tt == ID = trace("Parsed ID") (rest,ast)
+    |tt == TrueOp || tt == FalseOp || tt == ParenOpen = trace "parsing boolean experession" 
+      booleanExpression (token:rest)
     |otherwise = unexpected token
     where ast = AST (newNode token) []
           tt = kind token
@@ -70,13 +72,14 @@ varDecl (token:rest)
   where ast = AST (newNode token) []
         tt = kind token
 
-statementList :: TokenAST -> TokenAST 
+statementList :: TokenAST -> TokenAST
 statementList ([],_) = statementError 
 statementList ((token:rest),ast)
   --on finding follow of statementList epislon
   |tt == CloseBrace = ((token:rest),ast)
   --on finding first of statement do the statementList thing
-  |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == OpenBrace =
+  |tt == PrintOp || tt == ID || tt == IntOp || tt == CharOp || tt == Boolean || tt == If
+    || tt == While || tt == OpenBrace = 
     let (list, ast2) = statement (token:rest)
     in statementList (list, addChildTree ast ast2)
   --otherwise you done screwed up
@@ -103,10 +106,11 @@ booleanExpression [] = error "Error: Found nothing -- Expected Boolean Expressio
 booleanExpression (x:xs)
   |tt == ParenOpen = 
     let
-      ((equals:rest), leftChild) = trace "Parsing left expression in boolean expression" exper xs
-      (leftSide, parent) = consumeTokenAsParent Equality ([equals], leftChild)
+      (rest, leftChild) = trace "Parsing left expression in boolean expression" exper xs
+      (leftSide, parent) = consumeTokenAsParent Equality (rest, leftChild)
       (remaining, rightChild) = trace "Parsing right expression in boolean expression" exper leftSide
-    in (remaining, addChildTree parent rightChild)
+      final = consumeToken ParenClose remaining
+    in (final, addChildTree parent rightChild)
   |tt == FalseOp || tt == TrueOp = (xs, AST (newNode x) [])
   |otherwise = unexpected x
   where tt = kind x

@@ -29,7 +29,8 @@ statement (token:rest) =
       in (consumed ,addChildTree ast experTree)
     ID ->
       let 
-        (remaining, ast2) = trace("Parsing Id expression") consumeTokenAsParent EqualsOp (rest,ast)
+        (remaining, ast2) = trace("Parsing Id expression") 
+          consumeTokenAsParent EqualsOp (rest,ast)
         (expression, child) = exper remaining
       in (expression, addChildTree ast2 child)
     IntOp ->
@@ -38,6 +39,11 @@ statement (token:rest) =
     CharOp ->
         let (decleration, child) = trace("Parsing char decleration") varDecl rest
         in  (decleration, addChildTree ast child)
+    While ->
+    let
+      (remaining,ast2) = trace("Parsing while") booleanExpression rest
+      consumeTokenAsChild   
+    in (consumed, addChildTree ast childTree)
     OpenBrace ->
       let 
         (remaining, ast2) = trace("Parsing statementList") statementList (rest,ast)

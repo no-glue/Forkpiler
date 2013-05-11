@@ -17,7 +17,8 @@ checkEnd :: TokenList -> TokenList
 checkEnd [] = []
 checkEnd tokens 
   |eof == -1 = trace("Warning no $ found. Adding it for you (Like a Boss)") tokens
-  |(eof + 1)< size = trace("Warning code beyond $ found. It is being ignored" ++ show eof ++     show size) take eof tokens
+  |(eof + 1)< size = trace("Warning code beyond $ found. It is being ignored" ++ show eof 
+    ++ show size) take eof tokens
   |(eof+1) == size = take (eof) tokens
   |otherwise = error("unidentified lex error. most likely an error in the compiler uh oh!")
   where 
@@ -54,6 +55,9 @@ respectQuotes (x:xs)
 processWord :: String -> Int -> TokenList 
 processWord [] _ = []
 processWord input lineNum 
+  |input =~ boolean :: Bool =
+    let token = Token (input =~ boolean :: String) lineNum CharacterList
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ characterList :: Bool =
     let token = Token (input =~ characterList :: String) lineNum CharacterList 
     in token : processWord (input \\ (contents token)) lineNum
@@ -65,8 +69,17 @@ processWord input lineNum
   |input =~ parenClose :: Bool = 
     let token = Token (input =~ parenClose :: String)  lineNum ParenClose 
     in token : processWord (input \\ (contents token)) lineNum
+  |input =~ equality :: Bool =
+    let token = Token (input =~ equality :: String) lineNum Equality
+    in token : processWord (input \\ (contents token)) lineNum
   |input =~ equalsOp :: Bool = 
     let token = Token (input =~ equalsOp :: String) lineNum EqualsOp 
+    in token : processWord (input \\ (contents token)) lineNum
+  |input =~ while :: Bool = 
+    let token = Token (input =~ while :: String) lineNum While
+    in token : processWord (input \\ (contents token )) lineNum
+  |input =~ ifId :: Bool = 
+    let token = Token (input =~ ifId :: String) lineNum While
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ plusOp :: Bool = 
     let token = Token (input =~ plusOp :: String) lineNum PlusOp 
@@ -108,6 +121,7 @@ processWord input lineNum
   where 
     parenOpen = "^[(]"
     parenClose = "^[)]"
+    equality = "^=="
     equalsOp = "^[=]"
     plusOp = "^[+]"
     minusOp = "^[-]"
@@ -122,13 +136,17 @@ processWord input lineNum
     char = "^string"
     identifier = "^[a-z](?![1-9])"
     longId ="^[a-z]{2,}(?![1-9])"
+    while = "^while"
+    ifId = "^if"
+    boolean = "^boolean"
     eof = "^\\$"
 
 debugPrint :: [Token] -> IO ()
 debugPrint [] = putStrLn "Done Lexing (Like a Boss)" 
 debugPrint (x:xs)
   | kind x == Error = 
-    error("lex error" ++ (show $ kind x) ++ " " ++ (contents x) ++ " at line " ++ (show (location x)))  
+    error("lex error" ++ (show $ kind x) ++ " " ++ (contents x) ++ " at line " 
+      ++ (show (location x)))  
   |otherwise = do 
     putStrLn ("lexing " ++ (contents x) ++ " as " ++ (show $ kind x) ++ "(Like a Boss)")
     debugPrint xs 

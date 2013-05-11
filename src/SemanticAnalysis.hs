@@ -23,7 +23,7 @@ updateSymbolTable (AST ast children) m (pscope,scop)
 updateChildren :: Children -> ScopeMap -> Scope -> ScopeMap
 updateChildren [] m _ = m
 updateChildren (child:childs) m (pscope,scope) =
-  let nm = updateSymbolTable (child) m (pscope,scope)
+  let nm = updateSymbolTable child m (pscope,scope)
   in updateChildren childs nm (pscope,scope)
 
 assignValues :: Children -> ScopeMap -> Scope -> ScopeMap
@@ -53,7 +53,7 @@ usedInMath (child1:child2:[]) m scope
     let key = contents (original rightChild)
     in use m key scope
   |rt == PlusOp = usedInMath rightKids m scope
-  |otherwise = error("Problem in math op that passed through everything...")
+  |otherwise = error "Problem in math op that passed through everything..."
   where
     AST leftChild leftKids = child1 
     AST rightChild rightKids = child2
@@ -91,7 +91,7 @@ typeCheck (AST ast children) m scop
     line = location $ original ast
     dummySymbol t = Symbol "dummy" (-1) t "" False
     getSymbol
-     |symbol == Errer = error("Undecler ID: " ++ key ++ " on Line: " ++ (show line))
+     |symbol == Errer = error $ "Undecler ID: " ++ key ++ " on Line: " ++ show line
      |otherwise = symbol
      where symbol = findInScope m key scop
 
@@ -150,7 +150,6 @@ printType (child1:[]) m scope
 --Also sets up the scopes on the AST
 --buildSymbolTable :: AST -> (ScopeMap,AST)
 --buildSymbolTable tree = symbolLine (tree, emptySymbolTable, (0,0))
-
 buildSymbolTable :: AST -> (AST, ScopeMap)
 buildSymbolTable tree = statement (tree, emptySymbolTable, (-1,0))
 

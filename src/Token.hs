@@ -14,6 +14,10 @@ data TokenType = ParenOpen
   |ID
   |EOF
   |PrintOp
+  |Equality
+  |While
+  |If
+  |Boolean
   |Error
   |Warning
   deriving(Eq, Ord, Enum, Show)

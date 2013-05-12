@@ -53,6 +53,7 @@ usedInMath (child1:child2:[]) m scope
     let key = contents (original rightChild)
     in use m key scope
   |rt == PlusOp = usedInMath rightKids m scope
+  |lt == Digit = m
   |otherwise = error "Problem in math op that passed through everything..."
   where
     AST leftChild leftKids = child1 

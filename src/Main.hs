@@ -8,6 +8,7 @@ import System.Environment
 import AST
 import Data.Map as Map 
 import SymbolTable
+import CodeGen
 
 main = do
   --readIORef  ref >>= print 
@@ -29,6 +30,8 @@ main = do
   let warnings2 = warnDecleredButUnUsed updatedSymbolTable
   putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
   putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
+  let code = "EA EA " ++ codeGen updatedSymbolTable newAst
+  putStrLn code
 
 third (_,_,x) = x
 second (_,x,_) = x

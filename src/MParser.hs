@@ -37,7 +37,7 @@ statement (token:rest)
       in  (decleration, addChildTree ast child)
     |tt == While || tt == If =
       let
-        (block,boolChild) = trace("Parsing while") booleanExpression rest
+        (block,boolChild) = trace("Parsing " ++ contents token) booleanExpression rest
         (remaining, blockChild) = statement block
         whileBool = addChildTree ast boolChild
       in (remaining, addChildTree whileBool blockChild)

@@ -85,7 +85,7 @@ processWord input lineNum
     let token = Token (input =~ while :: String) lineNum While
     in token : processWord (input \\ (contents token )) lineNum
   |input =~ ifId :: Bool = 
-    let token = Token (input =~ ifId :: String) lineNum While
+    let token = Token (input =~ ifId :: String) lineNum If
     in token : processWord (input \\ (contents token)) lineNum
   |input =~ plusOp :: Bool = 
     let token = Token (input =~ plusOp :: String) lineNum PlusOp 

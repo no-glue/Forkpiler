@@ -160,6 +160,10 @@ statement (AST parent [], m, _) = (AST parent [], m)
 statement (tree, m, scope) 
   |tt == IntOp = (tree, intScope child m scope)
   |tt == CharOp = (tree, charScope child m scope) 
+  |tt == Boolean = (tree, boolScope child m scope)
+  |tt == While || tt == If = 
+    let (blockChildren, newMap) = statement (head children,m,scope)
+    in (addChildTree (AST parent [child]) blockChildren, newMap) 
   |tt == OpenBrace =
     let
       nextScope = findNextScope m s
@@ -188,6 +192,13 @@ intScope (AST parent []) m scope = updatedMap
     where 
       updatedMap = insertInScope m symbol scope
       symbol = tokenAndTypeToSymbol t I
+      t = original parent
+
+boolScope :: AST -> ScopeMap -> Scope -> ScopeMap
+boolScope (AST parent []) m scope = updatedMap
+    where 
+      updatedMap = insertInScope m symbol scope
+      symbol = tokenAndTypeToSymbol t B
       t = original parent
 
 charScope :: AST -> ScopeMap -> Scope -> ScopeMap

@@ -162,6 +162,7 @@ statement (tree, m, scope)
   |tt == CharOp = (tree, charScope child m scope) 
   |tt == Boolean = (tree, boolScope child m scope)
   |tt == While || tt == If = 
+    --jump to { and do a statement stuff on it
     let (blockChildren, newMap) = statement (head children,m,scope)
     in (addChildTree (AST parent [child]) blockChildren, newMap) 
   |tt == OpenBrace =

@@ -20,18 +20,32 @@ bne  = "D0 "
 inc  = "EE "
 sys  = "FF "
 int c = "0" ++ c ++ " "
+placeHolder name scope = "TX" ++ name ++ (show scope) ++ " "
 
 codeGen :: ScopeMap -> AST -> Int -> String
 codeGen m (AST parent []) s = " "
 codeGen m (AST parent (child:children)) s
   -- |tt == PlusOp = math m (child:children)
   |tt == PrintOp = printGen m child
+  |tt == EqualsOp = assignGen m (child:children) s
   |tt == OpenBrace =
     let nextScope = scope (tokentype parent) 
     in foldr (\c s -> (codeGen m c nextScope) ++ s) "" (child:children)
   |otherwise = codeGen m child s 
   where
     tt = kind $ original parent
+
+assignGen :: ScopeMap -> [AST] -> Int -> String
+assignGen _ [] _ = ""
+assignGen m (left:right:[]) scope
+  |rk == Digit = ldaI ++ int (contents rt) ++ sta ++ placeHolder (contents lt) scope 
+  |otherwise = error "uhoh"
+  where
+    (AST rightParent rightKids) = right
+    (AST leftParent leftKids) = left
+    rt = original rightParent
+    rk = kind rt
+    lt = original leftParent
 
 printGen :: ScopeMap -> AST -> String
 --printGen m [] = error "you ain't trying to print nothign!"

@@ -21,12 +21,15 @@ inc  = "EE "
 sys  = "FF "
 int c = "0" ++ c ++ " "
 
-codeGen :: ScopeMap -> AST -> String
-codeGen m (AST parent (child:children))
-  |tt == PlusOp = math m (child:children)
+codeGen :: ScopeMap -> AST -> Int -> String
+codeGen m (AST parent []) s = " "
+codeGen m (AST parent (child:children)) s
+  -- |tt == PlusOp = math m (child:children)
   |tt == PrintOp = printGen m child
-  |tt == OpenBrace =foldr (\c s -> (codeGen m c) ++ s) "" (child:children)
-  |otherwise = error "what you trying to pull!"
+  |tt == OpenBrace =
+    let nextScope = scope (tokentype parent) 
+    in foldr (\c s -> (codeGen m c nextScope) ++ s) "" (child:children)
+  |otherwise = codeGen m child s 
   where
     tt = kind $ original parent
 

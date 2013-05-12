@@ -79,11 +79,19 @@ typeCheck (AST ast children) m scop
   |tt == EqualsOp = dummySymbol $ assignType children m scop
   |tt == PrintOp = dummySymbol $ printType children m scop
   |tt == PlusOp || tt == MinusOp = dummySymbol $ mathType children m scop
+  |tt == Equality = dummySymbol $ boolType children m scop
+  |tt == While || tt == If =
+    let
+      ((AST parent leftChildren):right:[]) = children
+      !dumb = trace("here's the left " ++ show leftChildren) dummySymbol $! boolType leftChildren m scop
+    in typeCheck right m scop
   |tt == OpenBrace = 
     let nextScope = scope (tokentype ast)
     in dummySymbol $ head' $! typeCheckChildren children m nextScope
   |tt == IntOp = dummySymbol I
   |tt == CharOp = dummySymbol S
+  |tt == Boolean = dummySymbol B
+  |tt == FalseOp || tt == TrueOp = dummySymbol B
   |tt == ID = getSymbol 
   where 
     tt = kind $ original ast
@@ -92,8 +100,25 @@ typeCheck (AST ast children) m scop
     dummySymbol t = Symbol "dummy" (-1) t "" False
     getSymbol
      |symbol == Errer = error $ "Undecler ID: " ++ key ++ " on Line: " ++ show line
-     |otherwise = symbol
+     |otherwise = trace ("typechecking symbol: " ++ name symbol ++ " has type " ++(show $ sType symbol)) symbol
      where symbol = findInScope m key scop
+typeCheck ast m scope = trace ("typechecking error" ++ (show ast)) Symbol "dummy" (-1) I "" False
+
+
+boolType :: [AST] -> ScopeMap -> Int -> SymbolType
+boolType [] m scope = B
+boolType (child1:child2:[]) m scope
+  |lt /= rt = error("Type mismatch in equality check: "  ++ (name left)
+    ++" Found: " ++ (expandType rt) ++ " Expected: " ++ (expandType lt)
+    ++ " on line: " ++ (show line)) 
+  |otherwise = trace("Well this is akward") lt
+  where
+    !left = typeCheck child1 m scope 
+    !right = typeCheck child2 m scope
+    !lt = trace ("LEFT="++(show $ sType left)) sType left
+    !rt = trace ("RIGHT="++(show $ sType left)) sType right
+    AST node _  = child1
+    line = location $ original node
 
 head' :: [SymbolType] -> SymbolType 
 head' [] = I
@@ -112,12 +137,12 @@ assignType (child1:child2:[]) m scope
   |lt /= rt = error("Type mismatch in assignment of: "  ++ (name left)
     ++" Found: " ++ (expandType rt) ++ " Expected: " ++ (expandType lt)
     ++ " on line: " ++ (show line)) 
-  |otherwise = lt
+  |otherwise = trace("I'm ignorning your order") lt
   where 
     !left = typeCheck child1 m scope 
     !right = typeCheck child2 m scope
-    lt = sType left
-    rt = sType right
+    !lt = trace ("LEFT="++(show $ sType left)) sType left
+    !rt = trace ("RIGHT="++(show $ sType left)) sType right
     AST node _  = child1
     line = location $ original node
 
@@ -127,6 +152,10 @@ mathType (child1:child2:[]) m scope
         ++ "\n Note: Plus is not for String conciatenation") 
   |rt == S = error("Error: Found String on right of plus. Line: " ++ (show line)
       ++ " \nNote: Plus is not for String concatenation")
+  |rt == B = error("Error: Found Boolean on right of plus. Line: " ++ (show line)
+      ++ " \nNote: Plus is not defined for Booleans") 
+  |lt == B = error("Error: Found Boolean on left of plus. Line: " ++ (show line)
+      ++ " \nNote: Plus is not defined for Booleans") 
   |otherwise = I
   where
     !left = typeCheck child1 m scope

@@ -21,8 +21,8 @@ main = do
   let !(newAst,symboltable) = buildSymbolTable ast
   putStrLn "\n"
   putStrLn $ show newAst
-  let dummySymbol = typeCheck newAst symboltable 0
-  putStr $ show dummySymbol
+  let !dummySymbol = typeCheck newAst symboltable 0
+  putStrLn $ show dummySymbol
   let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
   putStrLn $ prettyPrint updatedSymbolTable 
   let warnings1 = warnUsedButUnintilized updatedSymbolTable

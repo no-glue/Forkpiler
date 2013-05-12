@@ -19,7 +19,6 @@ type Scope = (Int, Int)
 instance Show Symbol where
   show symbol
     |name symbol == "parent" = "" 
-    |name symbol == "dummy" = "\n"
     |otherwise = "Symbol:" ++ (name symbol) ++ " With Type: " 
       ++ (show $ sType symbol) ++ " and Value: " ++ (value symbol)
 

@@ -20,10 +20,10 @@ bne  = "D0 "
 inc  = "EE "
 sys  = "FF "
 int c = "0" ++ c ++ " "
-placeHolder name scope = "TX" ++ name ++ (show scope) ++ " "
+placeHolder name scope = "T" ++ name ++ " " ++ (show scope) ++ " "
 
 codeGen :: ScopeMap -> AST -> Int -> String
-codeGen m (AST parent []) s = " "
+codeGen m (AST parent []) s = ""
 codeGen m (AST parent (child:children)) s
   -- |tt == PlusOp = math m (child:children)
   |tt == PrintOp = printGen m child
@@ -39,6 +39,9 @@ assignGen :: ScopeMap -> [AST] -> Int -> String
 assignGen _ [] _ = ""
 assignGen m (left:right:[]) scope
   |rk == Digit = ldaI ++ int (contents rt) ++ sta ++ placeHolder (contents lt) scope 
+  |rk == PlusOp = 
+    let sum = math m rightKids
+    in sum ++ ldaM ++ "00 00 " ++ sta ++ placeHolder (contents lt) scope
   |otherwise = error "uhoh"
   where
     (AST rightParent rightKids) = right
@@ -47,9 +50,9 @@ assignGen m (left:right:[]) scope
     rk = kind rt
     lt = original leftParent
 
-printGen :: ScopeMap -> AST -> String
+printGen :: ScopeMap -> AST -> Int -> String
 --printGen m [] = error "you ain't trying to print nothign!"
-printGen m child
+printGen m child scope
   |tt == Digit = ldxI ++ "01 " ++ ldyI ++ int (contents token) ++ sys
   |tt == PlusOp = (math m children) ++ ldxI ++ "01 " ++ ldyM ++ "00 00 " ++ sys
   |otherwise = error "this ain't done yet!"

@@ -31,7 +31,7 @@ main = do
   putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
   putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
   let code = "EA EA " ++ codeGen updatedSymbolTable newAst 0
-  putStrLn code
+  putStrLn $ show $ words code
 
 third (_,_,x) = x
 second (_,x,_) = x

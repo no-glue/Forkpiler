@@ -31,7 +31,7 @@ main = do
   --let warnings2 = warnDecleredButUnUsed updatedSymbolTable
   --putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
   --putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
-  let code = words $ "EA EA " ++ codeGen symboltable newAst 0 ++ " 00"
+  let code = words $ "EA EA " ++ codeGen symboltable newAst 0 ++ " 00 00 "
   putStrLn $ show code
   let backPatchedCode = backpatch (symboltable, Map.empty) code (length code)
   putStrLn backPatchedCode

@@ -74,7 +74,7 @@ printGen m child scope
     tt = kind token
 
 math :: ScopeMap -> [AST] -> Int -> String
-math _ [] _ = error "plus opperator has no children"
+math _ [] _ = ""
 math m (left:right:[]) scope
   |rk == PlusOp =  math m rightKids scope ++ leftAfterRight
   |rk == ID = leftString ++ sumInt
@@ -125,7 +125,7 @@ ifGen m (equals:block:[]) scope offset
       equal = equalityGen m leftKids scope
       blockParty = codeGen m block scope
       jumpDistance = jumpTarget $! showHex ((length $ words blockParty) + offset) ""
-     in equal ++ cpx ++ "00 00 " ++ bne ++ jumpDistance ++ blockParty
+     in equal ++ cpx ++ "00 00 " ++ bne ++ jumpDistance ++ " " ++ blockParty
   |otherwise = error "this shit aint done"
   where
     (AST rightParent rightKids) = block
@@ -136,9 +136,9 @@ ifGen m (equals:block:[]) scope offset
 whileGen ::ScopeMap -> [AST] -> Int -> String
 whileGen m asts scope =
   let
-    top = ifGen m asts scope 11 
-    jumpDistance = jumpTarget $ showHex (254 - (length $ words top)) ""
-  in top ++ jmp ++ trace("DISTANCE" ++ (show $ length $ (words top))) jumpDistance
+    top = ifGen m asts scope 12
+    jumpDistance = jumpTarget $ showHex (244 - (length $! words top)) ""
+  in top ++ jmp ++ trace("DISTANCE" ++ (show $ length $ (words top))) jumpDistance ++ " "
   where 
     jmp = ldaI ++ "00 " ++ sta ++ "00 00 " ++ ldxI ++ "01 " ++
      cpx ++ "00 00 " ++ bne

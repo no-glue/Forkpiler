@@ -49,6 +49,7 @@ assignGen m (left:right:[]) scope
     in sum ++ ldaM ++ "00 00 " ++ sta ++ placeHolderInt (contents lt) scope
   |rk == TrueOp = intBool "1" $ contents lt
   |rk == FalseOp = intBool "0" $ contents lt
+  |rk == ID = ldaM ++ placeHolderInt (contents rt) scope ++ sta ++ placeHolderInt (contents lt) scope 
   |otherwise = error "uhoh"
   where
     (AST rightParent rightKids) = right
@@ -107,7 +108,7 @@ equalityGen m (left:right:[]) scope = genLeft ++ " " ++ genRight
       |kind lt == TrueOp = ldxI ++ int "1"
       |kind lt == FalseOp = ldxI ++ int "0"
       |kind lt == Digit = ldxI ++ int (contents lt)
-      |kind lt == PlusOp = trace("doing math" )math m leftKids scope ++ ldxM ++ "00 00 "
+      |kind lt == PlusOp = math m leftKids scope ++ ldxM ++ "00 00 "
       |kind lt == ID = ldxM ++ placeHolderInt (contents lt) scope
     genRight
       |kind rt == TrueOp = ldaI ++ int "1" ++ sta ++ "00 00 "

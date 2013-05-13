@@ -25,7 +25,7 @@ main = do
   putStrLn $ show newAst
   let !dummySymbol = typeCheck newAst symboltable 0
   putStrLn $ show dummySymbol
-  --let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
+  --let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0)
   putStrLn $ prettyPrint symboltable
   --let warnings1 = warnUsedButUnintilized updatedSymbolTable
   --let warnings2 = warnDecleredButUnUsed updatedSymbolTable

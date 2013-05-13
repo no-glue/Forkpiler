@@ -50,7 +50,7 @@ tokenAndTypeToSymbol token ty =
 
 insertInScope :: ScopeMap -> Symbol -> Scope -> ScopeMap
 insertInScope m symbol (pscope,scope)
-  |Map.member scope m = Map.adjust (insertSymbol) scope m
+  |Map.member scope m = Map.adjust insertSymbol scope m
   |otherwise = Map.insert scope (Map.fromList[(key,(symbol,pscope))]) m
   where
     key = name symbol
@@ -71,6 +71,21 @@ findInScope m key scope
          then findInScope m key (parent table)
          else cantFind
   |otherwise = cantFind
+   where 
+    parent = snd . head . Map.elems
+    cantFind =  trace ("couldn't find " ++ (show scope)) Errer 
+
+findScope :: ScopeMap -> String -> Int -> Int
+findScope m key scope 
+  |Map.member scope m = 
+    let table = m Map.! scope
+    in 
+    if Map.member key table
+       then scope
+       else if scope /= 0
+         then findScope m key (parent table)
+         else -1
+  |otherwise = -1
    where 
     parent = snd . head . Map.elems
     cantFind =  trace ("couldn't find " ++ (show scope)) Errer 

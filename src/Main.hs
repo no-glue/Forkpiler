@@ -9,6 +9,7 @@ import AST
 import Data.Map as Map 
 import SymbolTable
 import CodeGen
+import Backpatch
 
 main = do
   --readIORef  ref >>= print 
@@ -24,14 +25,16 @@ main = do
   putStrLn $ show newAst
   let !dummySymbol = typeCheck newAst symboltable 0
   putStrLn $ show dummySymbol
-  let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
-  putStrLn $ prettyPrint updatedSymbolTable 
-  let warnings1 = warnUsedButUnintilized updatedSymbolTable
-  let warnings2 = warnDecleredButUnUsed updatedSymbolTable
-  putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
-  putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
-  let code = "EA EA " ++ codeGen updatedSymbolTable newAst 0
-  putStrLn $ show $ words code
+  --let updatedSymbolTable = updateSymbolTable newAst symboltable (0,0) 
+  putStrLn $ prettyPrint symboltable
+  --let warnings1 = warnUsedButUnintilized updatedSymbolTable
+  --let warnings2 = warnDecleredButUnUsed updatedSymbolTable
+  --putStrLn ("WARNINGS: Used but uninitilized: " ++ show warnings1)
+  --putStrLn ("WARNINGS: Unused but Declered: " ++ show warnings2)
+  let code = words $ "EA EA " ++ codeGen symboltable newAst 0 ++ " 00"
+  putStrLn $ show code
+  let backPatchedCode = backpatch (symboltable, Map.empty) code (length code)
+  putStrLn backPatchedCode
 
 third (_,_,x) = x
 second (_,x,_) = x

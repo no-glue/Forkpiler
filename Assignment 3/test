@@ -1,0 +1,35 @@
+{
+  int a
+  a = 3
+  {  
+    boolean b
+    b = true
+    print(b)
+  }
+  {
+    if(2 + 2 == 1+2+1){
+      a = 2+a
+    }
+  }
+int i
+int j
+j = 0
+i = 0
+boolean z
+z = true
+while (a == 5){
+  while (z == true){
+    if(j ==2){
+      z = false
+    }
+    print(z)
+    j = 1 + j
+  }
+  print(a)
+  if(i == 2){
+    a = 6
+  }
+  i = 1+i
+}
+print(a)
+}

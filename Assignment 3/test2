@@ -1,0 +1,20 @@
+{
+  int a
+  {
+    int b
+    b = 8
+    a = 2 + b
+    print(b)
+    print(a)
+  }
+  if(a == 1+2+7){
+    boolean b
+    b = false
+    while (false == b){
+      print(5+a)
+      if(b == false){
+        b = true
+      }
+    }
+  }
+}

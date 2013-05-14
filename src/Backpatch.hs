@@ -19,7 +19,7 @@ backpatch (m,t) (x1:x2:xs) counter
       if Map.member key t
         then (t Map.! key) ++ " " ++ backpatch (m,t) xs counter
         else (ut Map.! key) ++ " " ++ backpatch (m,ut) xs (counter + 1)
-    |otherwise = x1 ++ " " ++ backpatch (m,t) (x2:xs) counter
+  |otherwise = x1 ++ " " ++ backpatch (m,t) (x2:xs) counter
 backpatch _ x _ = unlines x
 
 tableUpdate :: BackTable -> (Char, Int) -> Int -> BackTable
@@ -38,3 +38,8 @@ byteify x
     let (b1:b2:b3:b4:[]) = x
     in (b1:[b2]) ++ " " ++ (b3:[b4])
 
+--heapGen :: (ScopeMap, BackTable) -> [String] -> Int -> String
+--heapGen _ [] _ = ""
+--heapGen (m,t) (x1:x2:xs) counter
+ -- |head x1 == 'S' = ""
+  -- |otherwise = "" ++ heapGen

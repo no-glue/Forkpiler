@@ -49,7 +49,6 @@ assignGen m (left:right:[]) scope
     in sum ++ ldaM ++ "00 00 " ++ sta ++ placeHolderInt (contents lt) scope
   |rk == TrueOp = intBool "1" $ contents lt
   |rk == FalseOp = intBool "0" $ contents lt
-  |rk == ID = ldaM ++ placeHolderInt (contents rt) scope ++ sta ++ placeHolderInt (contents lt) scope 
   |otherwise = error "uhoh"
   where
     (AST rightParent rightKids) = right
